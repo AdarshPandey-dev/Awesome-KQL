@@ -1,0 +1,42 @@
+// OnePercent Group Ransomeware - Query 1 
+DeviceFileEvents
+| where TimeGenerated > ago(30d)
+| where FolderPath contains "\\%TEMP%\\Temp1_request.zip\\" 
+or FolderPath contains "\\%PROGRAMDATA%\\vexby.txt" 
+or FileName contains ".dZCqciAv-readme.txt"
+or SHA1 == "C00CFB456FC6AF0376FBEA877B742594C443DF97"
+or SHA1 == "A1D985E13C07EDDFA2721B14F7C9F869B0D733C9"
+or SHA256 == "E70ED531C8A12E7ECCE83223D7B9AA1895110DC140EDF85AFC31C8C5CD580116"
+or SHA256 == "ECA9FAC6848545FF9386176773810F96323FEFF0D575C4B6E1C55F8DB842E7FE"
+| project DeviceName, FileName, ActionType, FolderPath, FileOriginIP, FileSize, InitiatingProcessAccountName, InitiatingProcessFileName
+
+
+// OnePercent Group Ransomeware - Query 2
+DeviceNetworkEvents
+| where TimeGenerated > ago(30d)
+| where RemoteIP contains "157.245.239.187"
+or RemoteIP contains "31.187.64.199"
+or RemoteIP contains "206.189.227.145"
+or RemoteIP contains "167.71.224.39"
+or RemoteIP contains "80.82.67.221"
+or RemoteIP contains "138.197.179.153"
+or RemoteIP contains "134.209.203.30"
+or RemoteUrl contains "nix1.xyz"
+or RemoteUrl contains "golddisco.top"
+or RemoteUrl contains "delokijio.pw"
+or RemoteUrl contains "june85.cyou" 
+or RemoteUrl contains "intensemisha.cyou"
+or RemoteUrl contains "biggarderoub.cyou"
+or RemoteUrl contains "d30qpb9e10re4o.cloudfront.net"
+or RemoteUrl contains "http://5mvifa3xq5m7sou3xzaajfz7h6eserp5fnkwotohns5pgbb5oxty3zad.onion"
+| project Timestamp, RemoteUrl, RemoteIP, ActionType, InitiatingProcessAccountName, InitiatingProcessFileName, InitiatingProcessParentFileName, DeviceName, InitiatingProcessFolderPath, hash_md5(InitiatingProcessFileName), hash_md5(InitiatingProcessParentFileName)
+
+
+// OnePercent Group Ransomeware - Query 3
+EmailEvents
+//| where TimeGenerated > ago(30d)
+| where SenderFromAddress == "1percentransom@protonmail.com"
+or SenderFromAddress == "1percentransomware@protonmail.com"
+or SenderMailFromAddress == "1percentransom@protonmail.com"
+or SenderMailFromAddress == "1percentransomware@protonmail.com"
+| take 100
