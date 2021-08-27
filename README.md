@@ -1,4 +1,4 @@
-- 👋 Hi, I’m @AdarshPandey-dev
+- 👋 Hi, I’m @AdarshPandey
 - 👀 I’m interested in Cyber Security and Automation.
 - 🌱 I’m currently learning CyberSecurity.
 - 💞️ I’m looking to collaborate on Security Automation.
