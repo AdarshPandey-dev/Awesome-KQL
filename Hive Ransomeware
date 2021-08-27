@@ -1,0 +1,31 @@
+// Hive Ransomeware Query 1
+// Files used in this attack campgain 
+DeviceFileEvents
+| where FileName == "Winlo.exe" 
+or FileName == "7zG.exe" 
+or FileName == "Winlo_dump_64_SCY.exe"
+or FileName == "HOW_TO_DECRYPT.txt" 
+or FileName contains "*.key.hive"
+or FileName contains "*.key.*"
+or FileName contains "hive.bat"
+or FileName contains "shadow.bat"
+or MD5 == "BEE9BA70F36FF250B31A6FDF7FA8AFEB"
+or MD5 == "04FB3AE7F05C8BC333125972BA907398"
+or SHA256 == "321d0c4f1bbb44c53cd02186107a18b7a44c840a9a5f0a78bdac06868136b72c"
+or InitiatingProcessCommandLine contains "vssadmin.exe delete shadows /all /quiet"
+or InitiatingProcessCommandLine contains "wmic.exe SHADOWCOPY /nointeractive"
+or InitiatingProcessCommandLine contains "wmic.exe shadowcopy delete"
+or InitiatingProcessCommandLine contains "wevtutil.exe cl system"
+or InitiatingProcessCommandLine contains "wevtutil.exe cl security"
+or InitiatingProcessCommandLine contains "wevtutil.exe cl application"
+or InitiatingProcessCommandLine contains "bcdedit.exe /set {default} bootstatuspolicy ignoreallfailures"
+or InitiatingProcessCommandLine contains "bcdedit.exe /set {default} recoveryenabled no"
+
+// Hive Ransomeware Query 2
+// Anonymous File Sharing Links:
+DeviceNetworkEvents
+| where RemoteUrl contains "https://anonfiles.com"
+or RemoteUrl contains "https://mega.nz"
+or RemoteUrl contains "https://send.exploit.in"
+or RemoteUrl contains "https://ufile.io"
+or RemoteUrl contains "https://www.sendspace.com"
