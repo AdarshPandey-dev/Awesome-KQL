@@ -5,11 +5,11 @@
 let ChromeCVE= dynamic(["CVE-2021-30625", // Use after free in Selection API
     "CVE-2021-30626", // Out of bounds memory access in ANGLE
     "CVE-2021-30627", // Type Confusion in Blink layout
-	  "CVE-2021-30628", // Stack buffer overflow in ANGLE
+    "CVE-2021-30628", // Stack buffer overflow in ANGLE
     "CVE-2021-30629", // Use after free in Permissions
     "CVE-2021-30630", // Inappropriate implementation in Blink 
-	  "CVE-2021-30631", // Type Confusion in Blink layout
- 	  "CVE-2021-30632", // Out of bounds write in V8
+    "CVE-2021-30631", // Type Confusion in Blink layout
+    "CVE-2021-30632", // Out of bounds write in V8
     "CVE-2021-30633"]); // Use after free in Indexed DB API
 DeviceTvmSoftwareInventoryVulnerabilities
 | where CveId in(ChromeCVE)
