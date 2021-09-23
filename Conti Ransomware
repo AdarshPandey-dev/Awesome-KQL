@@ -1,0 +1,203 @@
+// Conti Ransomware - Query 1
+// Author: Adarsh Pandey
+// Reference:  https://us-cert.cisa.gov/ncas/alerts/aa21-265a
+DeviceNetworkEvents
+| where RemoteIP == "162.244.80.235"
+or RemoteIP == "85.93.88.165"
+or RemoteIP == "185.141.63.120"
+or RemoteIP == "82.118.21.1	"
+or RemoteIP == "23.106.160.174"
+or RemoteIP == "23.82.140.137"
+or RemoteUrl contains "docns.com"
+or RemoteUrl contains "tapavi.com"
+or RemoteUrl contains "contirecovery.best"
+or RemoteUrl contains "Menus.aspx"
+or RemoteUrl contains "us/ky/louisville/312-s-fourth-st.html"
+| project DeviceName, ActionType, RemoteIP, RemoteUrl, LocalIP, InitiatingProcessFileName, InitiatingProcessParentFileName
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+// Conti Ransomeware - Query 2
+// Author: Adarsh Pandey
+// Reference: https://blog.cyberint.com/conti-ransomware-ioc
+DeviceFileEvents
+| where Timestamp > ago(30d)
+| where SHA256 == "3b375dcda1f6019d986de1f7ae3458657e623c4f401c121e660add55d36a9e8c" 
+or SHA256 == "4e3d8806e6c9ba334166f12ffe4e27dbde203425c882fccf1e452f77355b7d25"
+or SHA256 == "e974c09f204b99bfcdeb9fe4a561a28e064c612132829919f8b99a838c2b2106"
+or SHA256 == "af218e34e12216d56e5c6c86704804866100aa09ccb9160bc4029492c3f1f959"
+or SHA256 == "591677b54eb556e7e840670eccb2d62434e336af6d3908394d17cb26e99c4733"
+or SHA256 == "2d3b859f2ad3f0e296fd29c1abc5eb80b4dabe7c0b9d9a3b44821c9ed8e015b1"
+or SHA256 == "63625702e63e333f235b5025078cea1545f29b1ad42b1e46031911321779b6be"
+or SHA256 == "79E41BB5B4EDEF24742F9E376ADD4BAFDB9CBEB9CB8AE256A36DF74694D820B9"
+or SHA256 == "1EF1FF8B1E81815D13BDD293554DDF8B3E57490DD3EF4ADD7C2837DDC67F9C24"
+or SHA256 == "EAE876886F19BA384F55778634A35A1D975414E83F22F6111E3E792F706301FE"
+or MD5 == "C7BCB3B84244A22E6EE9699CFBD86DC9F27FC677"
+//AdFind tool
+or SHA256 == "b21599f39223409e059cd2066a80832f305854e7d12b5ed3401d47a32ac962eb" //СНЯТИЕ-AD.rar
+or SHA256 == "b1102ed4bca6dae6f2f498ade2f73f76af527fa803f0e0b46e100d4cf5150682" //AdFind.exe
+or SHA256 == "794a5621fda2106fcb94cbd91b6ab9567fb8383caa7f62febafcf701175f2b91" //backup.bat
+or SHA256 == "085e87a6694edafd9a614a1f1143eb85233c04afbe9f84c89ebe5aebcd14546f" //script.sh
+or SHA256 == "047c2d5a6cf769c33e019c0b576aef702cae77f3418f0aeba0706467be5ba681" //p.bat
+or SHA256 == "269bea10e27d697a849b28ed0b688b8a2b5c85d65341bde1383c14876291d7c5" //3 # AV.7z
+or FileName contains "res.txt"
+or FileName contains "WORKERS.txt"
+or FileName contains "SERVERS.txt"
+or FileName contains "trustdmp.txt"
+or FileName contains "subnets.txt"
+or FileName contains "ad_users.txt"
+or FileName contains "ad_ous.txt"
+or FileName contains "ad_group.txt"
+or FileName contains "ad_computers.txt"
+// Antivirus Removal Tools
+or FileName contains "gmer.exe"
+or FileName contains "PCHunter32.exe"
+or FileName contains "PowerTool.exe"
+or FileName contains "PowerTool64.exe"
+// Cobalt Strike
+or SHA256 == "5ea267958786999986413bd982227f77716acb1f09d02ea56571631269dbdf95" //agscript
+or SHA256 == "75584d0477d5340b898d2fc1eb369516b76478359e7603eba9fcb615a75247af" //BaseArtifactUtils.class
+or SHA256 == "78d82b72aae1d847c64745a932bce927823337de58852833e8cafca168eb4366" //c2lint
+or SHA256 == "3a3725bf0cca3fc3d641aed0a1280b7d957aa5c872223f1b6320f315bdea457d" //cobaltstrike
+or SHA256 == "27aa9643628a7494ad3daa969c287b4119bbfdfffa943acfe2c866e1b9d965ea" //cobaltstrike.auth
+or SHA256 == "1cdfa75b103f4b3218a9f6ddec137a5438c5e6571151d0979c60d96dfbbf9231" //cobaltstrike.jar
+or SHA256 == "e25f83836e90fe17ed5d57516219373f0c4dcf0210638501223b63091d1fc6c3" //cobaltstrike.store
+or SHA256 == "3c4eb1e68c36e1287f0ed9c9a4470b95cf8f25b901d502fd9f5ccedec7d2ef54" //cs.jar
+or SHA256 == "6b098b82a0ff28c9bc0f812856eb5e2a861285d9ce12f3c7374542dc3d3acfbd" //hook.jar
+or SHA256 == "c20d8ce3809123923b8897c97f251a766b5b56b61bd89134cb986ff10c2a309e" //icon.jpg
+or SHA256 == "47060339e9d434f361ea750916a3980bd308995c4980c91e069d0b7a664a91af" //license.pdf
+or SHA256 == "340e3250b9d4717ca09543e34db19f5614b3bb84e93f3b6e0b467856455d2735" //ListenerConfig.class
+or SHA256 == "a29b4969c1f6c7759d6f94780145e126a8d67812fa388239a595472f1a9f3b13" //peclone
+or SHA256 == "19bc4b2b9704a5b4aa2edef5477219cd97052833f2fc2112ec6ecf9a9027ea35" //readme.txt
+or SHA256 == "e9b33a2f96b60f710e14d29cb38371b587094cfc4378276eebb9701d74cd3f71" //start.bat
+or SHA256 == "3481ec6c99e3b78793538a3a5b818384355af4eefc9624ec2d66ab96e1357aac" //teamserver
+or SHA256 == "92320d2f875e02f3c5f989926b1af60f20caea0034a4728d2f898ba8bafada3f" //update
+or SHA256 == "3f164991219c1804afa1fb75ee79d5cbfc0100ea71a90840cbad7352838a637b" //update.jar
+or SHA256 == "627719d254c8168c56c8fbd40c88fbb65ebe141995b8c65763103aa07e117d47" //third-party/README.winvnc.txt
+or SHA256 == "13feaa32e4b03ede8799e5bee6f8d54c3af715a6488ad32f6287d8f504c7078b" //third-party/winvnc.x64.dll
+or SHA256 == "c50183eed715ec2392249e334940acf66315797a740a8fe782934352fed144c6" //third-party/winvnc.x86.dll
+or SHA256 == "6a659500d1a672ad2d57cc0b004ea40b1479ab4b968858ba873e4def851d62bd" //enhancement-chain.7z
+or SHA256 == "760664d7f0770ab440c8f24cd48c132372fbebfe6338c59801000613a0f4b4fe" //enhancement_chain.cna
+or SHA256 == "d440e4494adcfd94004e9ead2adcaaaf22696c71fc51246b881d628567ce1111" //README.md
+// Empire Kerberoast:
+or SHA256 == "abbe373077c72125901669d1b9f74b9eecd95eeda2c3b794197a20ea49cd25c0" //Kerber-ATTACK.rar
+or SHA256 == "495da9bb972019fae2c8a4d38846e15b9c364ef7189377f2c93b86791a1b210d" //command.txt
+or SHA256 == "4729c83292e034642fd1081ddd4d0329bc9f57b9be989b647a025ffacdd55036" //Invoke-Kerberoast.ps1
+// Proxifier
+or SHA256 == "68e1b13bbe2a1de32c41a2db53999b9207ee7dbdc042e19cabd83cab5ef785a6" //ProxifierPE.zip
+or SHA256 == "167ecba4e15f0310770f265b0fbb00aaf3c4f04ee17e1c0cc26304152e8a1f4f" //Helper64.exe
+or SHA256 == "271fcf35f2da45bd6ea567f86cd1ec5179905f2bdd70c392aad76433890a525b" //Proxifier.exe
+or SHA256 == "5527dc7eac16fbc16e55829245f0d0fcb3f8d44b962d314fb5a934a804802143" //ProxyChecker.exe
+or SHA256 == "1664da61de30fa7103ee5ef09c9f59a117aa0437ee35f800e722097f38ca27c9" //PrxDrvPE64.dll
+or SHA256 == "8dc3afb39efabc780f2272b33cb0f8b42504991edbfe5f32ecce6abe10d0afe7" //PrxDrvPE.dll
+// Rclone
+or SHA256 == "861bc2cf05107d91b03406231e1e04839c7ed7e0e325f95d68b28f61a202fbc8" //2load.txt
+or SHA256 == "d47e2b72f71a35a201156f6611a934b391d52629a378587fb67bbb351dd50269" //rclone.conf
+or SHA256 == "9b5d1f6a94ce122671a5956b2016e879428c74964174739b68397b6384f6ee8b" //rclone.exe
+or SHA256 == "1f7b6fc3326be16f1847517d53bbf44f024b3cc8bccf69c59e107073db82ae02" //rclonemanager.ps1
+or SHA256 == "1da5ea82ddc736eefb5e014ab55ba1ee340c71474af11067666de9cfb8c1579b" //рклон.txt
+or SHA256 == "ba110536613c50460ff5be6413d2f58bbe80ba3fee809ff6a27a2c7d13a47e91" //рклон.zip
+// Router Scan
+or SHA256 == "b875051a6d584b37810ea48923af45e20d1367adfa94266bfe47a1a35d76b03a" //Routerscan.7z
+or SHA256 == "1729fa47ede6a8b5046fef6c538431d4e8bb9020d9124e20c872e01495f91fb6" //auth_basic.txt
+or SHA256 == "86db3629d98f47ea078ee41b54f2833bfbd5f632d0fce3b342e099aad368421d" //auth_digest.txt
+or SHA256 == "91ae5e6459a40c8084be102693a8c09d5179a3e78b8a11860cce6e69ca533623" //auth_form.txt
+or SHA256 == "307b3453bff0e5c2a7f5a677b6c1a64a455850d6d18952d5061a3649fbe09666" //config.ini
+or SHA256 == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" //exclusions.txt
+or SHA256 == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" //filter.txt
+or SHA256 == "7dd77348867a776967eb573c31c4b32211d3950bb3392187c30860f52538cab2" //libeay32.dll
+or SHA256 == "740e97254ae4104a588557e9d5abbe3a75896efe87e291201f49eb64c81dfc45" //librouter.dll
+or SHA256 == "60c06e0fa4449314da3a0a87c1a9d9577df99226f943637e06f61188e5862efa" //msvcr100.dll
+or SHA256 == "62440c93be34b792656b3c66ada73a17aea6d8260590f1cd75bf338e7893414b" //ports.txt
+or SHA256 == "a521b9bfd7b469d84a7910efdc8b385f087d85f3874ebe37c0c7059e0a23b7ba" //ranges.txt
+or SHA256 == "18229920a45130f00539405fecab500d8010ef93856e1c5bcabf5aa5532b3311" //RouterScan.exe
+or SHA256 == "7d06d988198e18dadf31816ba834dba9c0c333009bd14b8cdea3fcb2fcabc519" //RouterScan.log
+or SHA256 == "9c2aaf899342146ef6912e337bf893bc2f6835e66a8bcce431df5c134c4ba887" //ssleay32.dll
+or SHA256 == "2988be6f3413a90106932f3fc8d32d62b459289846150b75cf5e0831c980cf6b" //wlanpass.txt
+or SHA256 == "2893b648d0e972e6c5dede0919ab35ad13e9a244c0685822601f93310e73724e" //pixiewps/LICENSE.md
+or SHA256 == "b91166d5623d4077003ae8527e9169092994f5c189c8a3820b32e204b4230578" //pixiewps/pixiewps.exe
+or SHA256 == "3b59889ee4189c7e2077e35c3f9884d09cd6bc50b7007622bb3e6a4def882c5e" //pixiewps/pthreadGC2.dll
+or SHA256 == "9940cec1ad427946a67ec5b3b15f022cc64acea99da179457a117d706ec14207" //pixiewps/README.md
+or SHA256 == "9940cec1ad427946a67ec5b3b15f022cc64acea99da179457a117d706ec14207" //src/demoapp/demo.dpr
+or SHA256 == "3653d87909a0315231d2adcbf3316be0d088cfd72abab00911a3afa42444e1ad" //src/demoapp/demo.exe
+| project DeviceName, FileName, ActionType, FolderPath, FileOriginIP, FileSize, InitiatingProcessAccountName, InitiatingProcessFileName
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+// Conti Ransomeware - Query 3
+// Author: Adarsh Pandey
+// Reference: https://blog.cyberint.com/conti-ransomware-ioc
+union DeviceFileEvents, DeviceProcessEvents
+| where Timestamp >= ago(30d)
+// AnyDesk
+| where FolderPath contains "C:\\ProgramData\\AnyDesk"
+    or ProcessCommandLine contains "C:\\ProgramData\\AnyDesk.exe --install C:\\ProgramData\\AnyDesk --start-with-win --silent"
+    or ProcessCommandLine contains "cmd.exe /c echo J9kzQ2Y0qO | C:\\ProgramData\anydesk.exe --set-password"
+    or ProcessCommandLine contains "net user oldadministrator"
+    or ProcessCommandLine contains "net localgroup Administrators oldadministrator /ADD"
+    or ProcessCommandLine contains "oldadministrator /t REG_DWORD /d 0 /f"
+    or ProcessCommandLine contains "cmd.exe /c C:\\ProgramData\\AnyDesk.exe --get-id"
+    // Credential Dumping
+    or ProcessCommandLine contains "comsvcs.dll"
+    or ProcessCommandLine contains "MiniDump"
+    // Network Scanner
+    or ProcessCommandLine contains "netscan.exe /hide /auto:"
+    or ProcessCommandLine contains "libsmb2.dll"
+    or ProcessCommandLine contains "libsmi2.dll"
+    or ProcessCommandLine contains "netscan.exe"
+    or ProcessCommandLine contains "netscan.xml"
+    or ProcessCommandLine contains "result.xml"
+    // ngrok
+    or ProcessCommandLine contains "ngrok authtoken 1vZgA1BbLWyhSjIE0f36QG6derd_5fXEPgPp8ZLxbUg"
+    or ProcessCommandLine contains "ngrok tcp 3389"
+    // NTDS Dump
+    or ProcessCommandLine contains "%WINDOWS%\\NTDS.dit"
+    or ProcessCommandLine contains "cmd /c vssadmin list shadows >> c:\\log.txt"
+    or ProcessCommandLine contains "net start Volume Shadow Copy"
+    or ProcessCommandLine contains "cmd /c vssadmin create shadow /for=C: 2>&1"
+    // or ProcessCommandLine contains "wmic /node:"DC01" /user:"DOMAIN\admin" /password:"cleartextpass" process call create "cmd /c copy"
+    or ProcessCommandLine contains "c:\temp\\log\\ & copy \\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy55\\Windows\\System32\\config\\SYSTEM"
+    or ProcessCommandLine contains "c:\temp\\log\\ & copy \\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy55\\Windows\\System32\\config\\SECURITY c:\\temp\\log\\"
+    or ProcessCommandLine contains "7za.exe a -tzip -mx5 \\<DOMAIN_CONTROLLER>\\C$\temp\\log.zip \\DC01\\C$\temp\\log -pTOPSECRETPASSWORD"
+    or ProcessCommandLine contains "Esentutl /p C:\\log\ntds.dit"
+    // Payload Distribution:
+    or ProcessCommandLine contains "COPY.BAT"
+    or ProcessCommandLine contains "PsExec.exe /accepteula @C:\\share$\\comps1.txt -u DOMAIN\\ADMINISTRATOR -p PASSWORD cmd /c COPY"
+    or ProcessCommandLine contains "C:\\share$\\comps1.txt"
+    or ProcessCommandLine contains "wmic /node:@C:\\share$\\comps1.txt"
+    or ProcessCommandLine contains "fDenyTSConnections /t REG_DWORD /d 0 /f"
+    or ProcessCommandLine contains "netsh Advfirewall set allprofiles state off"
+    or ProcessCommandLine contains "netsh advfirewall firewall set rule group="
+or ProcessCommandLine contains "netsh firewall set service type = remotedesktop mode = enable"
+or ProcessCommandLine contains "-Direction Inbound -LocalPort 1350 -Protocol TCP -Action allow"
+or ProcessCommandLine contains "-Direction Inbound -LocalPort 1350 -Protocol UDP -Action allow"
+// or ProcessCommandLine contains "Set-ItemProperty -Path "HKLM : \System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name PortNumber -Value 1350
+// Restart-Service termservice -force"
+or ProcessCommandLine contains "net user Admin Password1 /add"
+or ProcessCommandLine contains "net localgroup Administrators Admin /add"
+or ProcessCommandLine contains "sqlcmd.exe -S localhost -Q "
+or ProcessCommandLine contains "sqlcmd.exe -S localhost -E"
+// Task Scheduler
+or ProcessCommandLine contains "SCHTASKS /s <IP|HOSTNAME> /RU"
+or ProcessCommandLine contains "SCHTASKS /s <IP|HOSTNAME> /run /TN "
+or ProcessCommandLine contains "schtasks /S <IP|HOSTNAME> /TN "
+// Windows Defender:
+or ProcessCommandLine contains "Set-MpPreference -DisableRealtimeMonitoring $true"
+or ProcessCommandLine contains "Set-MpPreference -DisableIntrusionPreventionSystem $true"
+or ProcessCommandLine contains "Set-MpPreference -DisableIOAVProtection $true"
+or ProcessCommandLine contains "Set-MpPreference -DisableScriptScanning $true"
+or ProcessCommandLine contains "Set-MpPreference -EnableControlledFolderAccess Disabled"
+or ProcessCommandLine contains "Set-MpPreference -MAPSReporting Disabled"
+or ProcessCommandLine contains "Set-MpPreference -SubmitSamplesConsent NeverSend"
+or ProcessCommandLine contains "GetIpNetTable()"
+or ProcessCommandLine contains "NetShareEnum()"
+or ProcessCommandLine contains "CreateIoCompletionPort()"
+or ProcessCommandLine contains "PostQueuedCompletionStatus()"
+or ProcessCommandLine contains "GetQueuedCompletionPort()"
+// AdFind tool:
+// or ProcessCommandLine contains "NET GROUP \"DOMAIN ADMINS" \/DOMAIN"
+| project DeviceName, ActionType, FileName, FolderPath, InitiatingProcessFileName, ProcessCommandLine, InitiatingProcessParentFileName, AccountName
