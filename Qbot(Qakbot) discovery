@@ -1,0 +1,15 @@
+// #Qbot (#Qakbot) discovery
+// Author: Adarsh Pandey
+// Reference: https://twitter.com/TheDFIRReport/status/1441043842040537091?s=20
+union DeviceFileEvents, DeviceProcessEvents
+| where Timestamp >= ago(30d)
+| where ProcessCommandLine contains "whoami /all"
+or ProcessCommandLine contains "cmd /c set"
+or ProcessCommandLine contains "arp -a"
+or ProcessCommandLine contains "ipconfig /all"
+or ProcessCommandLine contains "net view /all"
+or ProcessCommandLine contains "net share"
+or ProcessCommandLine contains "route print"
+or ProcessCommandLine contains "netstat -nao"
+or ProcessCommandLine contains "net localgroup"
+| project DeviceName, ActionType, FileName, FolderPath, InitiatingProcessFileName, ProcessCommandLine, InitiatingProcessParentFileName, AccountName
