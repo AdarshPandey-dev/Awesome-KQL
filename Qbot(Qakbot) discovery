@@ -1,4 +1,3 @@
-// #Qbot (#Qakbot) discovery
 // Author: Adarsh Pandey
 // Reference: https://twitter.com/TheDFIRReport/status/1441043842040537091?s=20
 union DeviceFileEvents, DeviceProcessEvents
@@ -12,4 +11,8 @@ or ProcessCommandLine contains "net share"
 or ProcessCommandLine contains "route print"
 or ProcessCommandLine contains "netstat -nao"
 or ProcessCommandLine contains "net localgroup"
+or ProcessCommandLine contains "regsvr32.exe -s \\REDACTED\\C$\\uahoyselajir.dll"
+or ProcessCommandLine contains "C:\\Windows\\system32\\services.exe"
+or ProcessCommandLine contains "C:\\Windows\\system32\\ping.exe -t 127.0.0.1"
+or ProcessCommandLine contains "cmd.exe /c rmdir /S /Q" 
 | project DeviceName, ActionType, FileName, FolderPath, InitiatingProcessFileName, ProcessCommandLine, InitiatingProcessParentFileName, AccountName
