@@ -1,5 +1,4 @@
-// Conti Ransomware - Query 1
-// Author: Adarsh Pandey
+// Conti Ransomeware - Query 1
 // Reference:  https://us-cert.cisa.gov/ncas/alerts/aa21-265a
 DeviceNetworkEvents
 | where RemoteIP == "162.244.80.235"
@@ -15,12 +14,9 @@ or RemoteUrl contains "Menus.aspx"
 or RemoteUrl contains "us/ky/louisville/312-s-fourth-st.html"
 | project DeviceName, ActionType, RemoteIP, RemoteUrl, LocalIP, InitiatingProcessFileName, InitiatingProcessParentFileName
 
-
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 // Conti Ransomeware - Query 2
-// Author: Adarsh Pandey
 // Reference: https://blog.cyberint.com/conti-ransomware-ioc
 DeviceFileEvents
 | where Timestamp > ago(30d)
@@ -42,15 +38,15 @@ or SHA256 == "794a5621fda2106fcb94cbd91b6ab9567fb8383caa7f62febafcf701175f2b91" 
 or SHA256 == "085e87a6694edafd9a614a1f1143eb85233c04afbe9f84c89ebe5aebcd14546f" //script.sh
 or SHA256 == "047c2d5a6cf769c33e019c0b576aef702cae77f3418f0aeba0706467be5ba681" //p.bat
 or SHA256 == "269bea10e27d697a849b28ed0b688b8a2b5c85d65341bde1383c14876291d7c5" //3 # AV.7z
-or FileName contains "res.txt"
-or FileName contains "WORKERS.txt"
-or FileName contains "SERVERS.txt"
-or FileName contains "trustdmp.txt"
-or FileName contains "subnets.txt"
-or FileName contains "ad_users.txt"
-or FileName contains "ad_ous.txt"
-or FileName contains "ad_group.txt"
-or FileName contains "ad_computers.txt"
+or FileName == "res.txt"
+or FileName == "WORKERS.txt"
+or FileName == "SERVERS.txt"
+or FileName == "trustdmp.txt"
+or FileName == "subnets.txt"
+or FileName == "ad_users.txt"
+or FileName == "ad_ous.txt"
+or FileName == "ad_group.txt"
+or FileName == "ad_computers.txt"
 // Antivirus Removal Tools
 or FileName contains "gmer.exe"
 or FileName contains "PCHunter32.exe"
@@ -124,12 +120,9 @@ or SHA256 == "9940cec1ad427946a67ec5b3b15f022cc64acea99da179457a117d706ec14207" 
 or SHA256 == "3653d87909a0315231d2adcbf3316be0d088cfd72abab00911a3afa42444e1ad" //src/demoapp/demo.exe
 | project DeviceName, FileName, ActionType, FolderPath, FileOriginIP, FileSize, InitiatingProcessAccountName, InitiatingProcessFileName
 
-
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 // Conti Ransomeware - Query 3
-// Author: Adarsh Pandey
 // Reference: https://blog.cyberint.com/conti-ransomware-ioc
 union DeviceFileEvents, DeviceProcessEvents
 | where Timestamp >= ago(30d)
@@ -143,14 +136,14 @@ union DeviceFileEvents, DeviceProcessEvents
     or ProcessCommandLine contains "cmd.exe /c C:\\ProgramData\\AnyDesk.exe --get-id"
     // Credential Dumping
     or ProcessCommandLine contains "comsvcs.dll"
-    or ProcessCommandLine contains "MiniDump"
+    // or ProcessCommandLine contains "MiniDump"
     // Network Scanner
     or ProcessCommandLine contains "netscan.exe /hide /auto:"
     or ProcessCommandLine contains "libsmb2.dll"
     or ProcessCommandLine contains "libsmi2.dll"
     or ProcessCommandLine contains "netscan.exe"
-    or ProcessCommandLine contains "netscan.xml"
-    or ProcessCommandLine contains "result.xml"
+    // or ProcessCommandLine contains "netscan.xml"
+    // or ProcessCommandLine contains "result.xml"
     // ngrok
     or ProcessCommandLine contains "ngrok authtoken 1vZgA1BbLWyhSjIE0f36QG6derd_5fXEPgPp8ZLxbUg"
     or ProcessCommandLine contains "ngrok tcp 3389"
@@ -165,7 +158,7 @@ union DeviceFileEvents, DeviceProcessEvents
     or ProcessCommandLine contains "7za.exe a -tzip -mx5 \\<DOMAIN_CONTROLLER>\\C$\temp\\log.zip \\DC01\\C$\temp\\log -pTOPSECRETPASSWORD"
     or ProcessCommandLine contains "Esentutl /p C:\\log\ntds.dit"
     // Payload Distribution:
-    or ProcessCommandLine contains "COPY.BAT"
+    // or ProcessCommandLine contains "COPY.BAT"
     or ProcessCommandLine contains "PsExec.exe /accepteula @C:\\share$\\comps1.txt -u DOMAIN\\ADMINISTRATOR -p PASSWORD cmd /c COPY"
     or ProcessCommandLine contains "C:\\share$\\comps1.txt"
     or ProcessCommandLine contains "wmic /node:@C:\\share$\\comps1.txt"
