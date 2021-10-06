@@ -1,0 +1,9 @@
+// Suspicious RemoteURL and Process Hunting
+// Using this Hunting query we will be able to find all suspicious process and outbound connection. 
+// Author : Adarsh Pandey
+
+let RemoteURL = dynamic (["go.project-affiliates.com", "serch07.biz", "www.aapsis.com", "ohsoft.net", "px1.co", "toglooman.com", "profinch.com", "mulmatch.com"]);
+search in (DeviceEvents, DeviceNetworkEvents, DeviceProcessEvents)
+Timestamp > ago(7d)
+| where RemoteUrl in (RemoteURL)
+| project Timestamp, RemoteUrl, RemoteIP, ActionType, InitiatingProcessAccountName, InitiatingProcessFileName, InitiatingProcessParentFileName, DeviceName, InitiatingProcessFolderPath, hash_md5(InitiatingProcessFileName), hash_md5(InitiatingProcessParentFileName)
