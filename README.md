@@ -1,31 +1,11 @@
-# Hi, <img src="https://raw.githubusercontent.com/MartinHeinz/MartinHeinz/master/wave.gif" width="30px"> I'm Adarsh Pandey.
-
-# Tools and Technologies:
-
-![](https://img.shields.io/badge/OS-Linux_&_Windows-informational?style=flat&logo=<LOGO_NAME>&logoColor=white&color=2bbc8a) ![](https://img.shields.io/badge/OS-Linux_&_Windows-informational?style=flat&logo=<LOGO_NAME>&logoColor=white&color=2bbc8a)
-
-<!-- Actual text -->
-
-You can find me on [![Twitter][1.2]][1]
-
-<!-- Icons -->
-
-[1.2]: http://i.imgur.com/wWzX9uB.png (twitter icon without padding)
-
-<!-- Links to your social media accounts -->
-
-[1]: https://twitter.com/InfosecMonk
-
-
-
 <h2>नमस्ते (Namaste)🙏🏻, I'm Adarsh Pandey! <img src="https://media.giphy.com/media/12oufCB0MyZ1Go/giphy.gif" width="50"></h2>
 <img align='right' src="https://media.giphy.com/media/M9gbBd9nbDrOTu1Mqx/giphy.gif" width="230">
-<p><em>Software Engineer at <a href="http://www.cleartax.in">ClearTax</a><img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="30"> 
+<p><em>Cyber Security Professional <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="30"> 
 </em></p>
 
-[![Twitter Follow](https://img.shields.io/twitter/follow/misteranmol?label=Follow)](https://twitter.com/intent/follow?screen_name=misteranmol)
-[![Linkedin: anmol](https://img.shields.io/badge/-anmol-blue?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/anmol-p-singh/)](https://www.linkedin.com/in/anmol-p-singh/)
-![GitHub followers](https://img.shields.io/github/followers/anmol098?label=Follow&style=social)
+[![Twitter Follow](https://img.shields.io/twitter/follow/InfosecMonk?label=Follow)](https://twitter.com/intent/follow?screen_name=InfosecMonk)
+[![Linkedin: anmol](https://img.shields.io/badge/adarsh-pandey?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/adarsh-pandey-2019//)](https://www.linkedin.com/in/adarsh-pandey-2019/)
+![GitHub followers](https://img.shields.io/github/followers/adarshpandey?label=Follow&style=social)
 [![website](https://img.shields.io/badge/Website-46a2f1.svg?&style=flat-square&logo=Google-Chrome&logoColor=white&link=https://anmolsingh.me/)](https://anmolsingh.me/)
 ![](https://visitor-badge.glitch.me/badge?page_id=anmol098.anmol098)
 ![Waka Readme](https://github.com/anmol098/anmol098/workflows/Waka%20Readme/badge.svg)
