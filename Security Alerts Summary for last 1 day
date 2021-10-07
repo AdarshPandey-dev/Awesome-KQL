@@ -1,0 +1,16 @@
+// Security Alerts Summary
+// Using this query we will be able to find the security alerts by percentage and count for 1 day, 360 day, 180 day, 90 day, 30 day, and 7 days.
+// Author : Adarsh Pandey
+
+SecurityAlert
+// | where TimeGenerated > ago(360d)
+// | where TimeGenerated > ago(180d)
+// | where TimeGenerated > ago(90d)
+// | where TimeGenerated > ago(60d)
+// | where TimeGenerated > ago(30d)
+// | where TimeGenerated > ago(7d)
+| where TimeGenerated > ago(1d)
+| summarize count()by AlertName, AlertSeverity, ProviderName
+| sort by count_ desc
+| render piechart 
+
