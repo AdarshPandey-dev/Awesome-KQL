@@ -4,7 +4,7 @@
 </em></p>
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/InfosecMonk?label=Follow)](https://twitter.com/intent/follow?screen_name=InfosecMonk)
-[![Linkedin: anmol](https://img.shields.io/badge/adarsh-pandey?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/adarsh-pandey-2019//)](https://www.linkedin.com/in/adarsh-pandey-2019/)
+[![Linkedin: Adarsh](https://img.shields.io/badge/adarsh-pandey?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/adarsh-pandey-2019//)](https://www.linkedin.com/in/adarsh-pandey-2019/)
 ![GitHub followers](https://img.shields.io/github/followers/adarshpandey?label=Follow&style=social)
 [![website](https://img.shields.io/badge/Website-46a2f1.svg?&style=flat-square&logo=Google-Chrome&logoColor=white&link=https://anmolsingh.me/)](https://anmolsingh.me/)
 ![](https://visitor-badge.glitch.me/badge?page_id=anmol098.anmol098)
