@@ -3,8 +3,8 @@
 //Query 1: Defender For Endpoint -
 
 DeviceNetworkEvents
-| where Remoteurl contains "https://lp.vbt.site"
-| project Timestamp, Remoteurl, RemoteIP, InitiatingProcessFolderPath, InitiatingProcessFileName, InitiatingProcessParentFileName, InitiatingProcessAccount
+| where RemoteUrl contains "http://solutionssolaires.nl"
+| project Timestamp, RemoteUrl, RemoteIP, InitiatingProcessFolderPath, InitiatingProcessFileName, InitiatingProcessParentFileName, InitiatingProcessAccountName
 
 
 //Query 2: Sentinel/Log Analytics
