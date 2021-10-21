@@ -1,0 +1,8 @@
+// This KQL query will help you to find when no logs have been received from the syslog collector agent for the past 5 minutes/10 minutes.
+
+let Collectors = datatable (CollectorName:string) ["Syslog_Collector_Name"];
+CommonSecurityLog
+| where TimeGenerated > ago(12h)
+| summarize dcount(TimeGenerated) by bin(TimeGenerated, 5m)
+| render columnchart
+| sort by TimeGenerated asc
