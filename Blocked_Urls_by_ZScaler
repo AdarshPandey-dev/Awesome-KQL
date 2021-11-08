@@ -1,0 +1,6 @@
+// Urls blocked by Zscaler - Using this KQL we can find all the blocked urls by Zscaler. 
+// Developed by Adarsh Pandey
+CommonSecurityLog
+| where DeviceVendor == "Zscaler"
+| where DeviceAction == "Blocked"
+| summarize by RequestURL, DeviceAction, SourceHostName, SourceIP, DestinationHostName, DestinationIP, Activity, LogSeverity, DestinationServiceName, CommunicationDirection, AdditionalExtensions
