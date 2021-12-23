@@ -1,0 +1,8 @@
+// Log4j Threat Hunting using defender's TVM(Threat and vulnerability Management) feature.
+// KQL developed by Adarsh Pandey
+DeviceTvmSoftwareInventory
+| where SoftwareName contains "Log4j"
+// Per Apache's security advisory Log4j 1.x is not impacted by this vulnerability.
+// Reference: https://logging.apache.org/log4j/2.x/security.html
+| where SoftwareVersion !startswith "1."
+| project SoftwareName, DeviceName, SoftwareVersion, ProductCodeCpe
