@@ -2,7 +2,6 @@
 // KQL developed by Adarsh Pandey
 DeviceTvmSoftwareInventory
 | where SoftwareName contains "Log4j"
-// Per Apache's security advisory Log4j 1.x is not impacted by this vulnerability.
-// Reference: https://logging.apache.org/log4j/2.x/security.html
-| where SoftwareVersion !startswith "1."
+| where SoftwareVersion !startswith "1." // Per Apache's security advisory Log4j 1.x is not impacted by this vulnerability.
+| where SoftwareVersion !contains "2.17.1." // Fixed Version
 | project SoftwareName, DeviceName, SoftwareVersion, ProductCodeCpe
