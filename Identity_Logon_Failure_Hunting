@@ -1,0 +1,8 @@
+// Identity Logon failure AdvancedHunting (MS 365 Security)
+// Developed by Adarsh Pandey
+IdentityLogonEvents 
+| where ActionType == "LogonFailed"
+// | where FailureReason !contains "General failure"
+| project Timestamp, AccountDisplayName, AccountUpn, Application, LogonType, FailureReason, DeviceType, OSPlatform, IPAddress, Location, ISP, AdditionalFields
+| summarize count() by FailureReason
+| render piechart
