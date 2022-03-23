@@ -1,0 +1,46 @@
+// Query: 1
+// This query checks the user's interactive logons with location details
+AADNonInteractiveUserSignInLogs
+| where UserPrincipalName == "adarsh@xyz.com" // replace the user name
+| extend city = tostring(parse_json(LocationDetails).city)
+| extend countryOrRegion = tostring(parse_json(LocationDetails).countryOrRegion)
+| extend state = tostring(parse_json(LocationDetails).state)
+| sort by TimeGenerated desc
+| project TimeGenerated, UserDisplayName, UserPrincipalName, city, countryOrRegion, state, Location, Identity
+
+
+// Query: 2
+// This query checks the user's sign-in details with location
+SigninLogs
+| where Identity contains "adarsh" // replace the user name
+| extend city = tostring(LocationDetails.city)
+| extend countryOrRegion = tostring(LocationDetails.countryOrRegion)
+| extend state = tostring(LocationDetails.state)
+| sort by TimeGenerated desc
+| project TimeGenerated, Identity, IPAddress, city, countryOrRegion, state, Location
+
+
+// Query: 3
+// This query checks the user's sign-in details with location and summarize the counts
+SigninLogs
+| where Identity contains "adarsh" // replace the user name
+| extend city = tostring(LocationDetails.city)
+| extend countryOrRegion = tostring(LocationDetails.countryOrRegion)
+| extend state = tostring(LocationDetails.state)
+| sort by TimeGenerated desc
+| project TimeGenerated, Identity, IPAddress, city, countryOrRegion, state, Location
+| summarize count() by bin(TimeGenerated, 1h)
+| render columnchart
+
+// Query: 4
+// This query checks the user's 14 days sign-in details with location and summarize the counts with columnchart
+SigninLogs
+| where TimeGenerated >= startofday(ago(14d))
+| where Identity contains "adarsh" // replace the user name
+| extend city = tostring(LocationDetails.city)
+| extend countryOrRegion = tostring(LocationDetails.countryOrRegion)
+| extend state = tostring(LocationDetails.state)
+| sort by TimeGenerated desc
+| project TimeGenerated, Identity, IPAddress, city, countryOrRegion, state, Location
+| summarize count() by bin(TimeGenerated, 1h)
+| render columnchart  
