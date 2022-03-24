@@ -1,0 +1,9 @@
+// Phishing emails from the top sender domains 
+// Developed by Adarsh Pandey 
+EmailEvents
+| where TimeGenerated > ago(1d)
+| where ThreatTypes has "Phish"
+| where EmailDirection contains "inbound"
+| summarize Count = count() by SenderFromDomain
+| top 100 by Count
+| render barchart
