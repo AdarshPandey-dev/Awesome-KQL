@@ -1,0 +1,6 @@
+// Summarize all Office 365 oprations
+// Developed by Adarsh Pandey
+OfficeActivity
+| where TimeGenerated > ago(30d)
+| summarize count() by Operation 
+| render piechart
