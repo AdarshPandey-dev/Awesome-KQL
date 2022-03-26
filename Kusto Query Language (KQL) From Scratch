@@ -1,0 +1,3172 @@
+==================================================================================================
+// Kusto Query Language (KQL) From Scratch
+
+// Module 1 - Introduction
+
+// The demos in this module serve as a very basic introduction to the KQL language within the Azure Log Analytics environment. 
+
+// They are part of a free training course available at Pluralsight: https://www.pluralsight.com/courses/kusto-query-language-kql-from-scratch
+
+// Simply create a free Pluralsight account and watch the course at no charge.
+==================================================================================================
+
+// This is a comment
+
+==================================================================================================
+// Use the left/right arrow on the left of this window, at the top to expand the schema pane.
+
+// Under it are Table Groups. Table groups are kind of like databases, but more accurately would be a way to collect a group of tables together.
+Unlike a database, a table can be in more than one table group.
+
+// Each table exposes a list of columns containing the actual data. 
+==================================================================================================
+// To retrieve data, you can simply enter the table name and hit the
+// Run button at the top, or use SHIFT+ENTER 
+// Be warned just a table name has the potential to return a lot of data, so
+// be patient if you execute this kind of query. 
+Perf 
+==================================================================================================
+// Kusto Query Language (KQL) From Scratch
+// Module 2 - 80% of the Operators You'll Ever Use
+
+// The demos in this module serve as a very basic introduction to the KQL language within the Azure Log Analytics environment. 
+
+------------------------------------------------------------------------------
+// Search
+------------------------------------------------------------------------------
+
+Will search all columns in the Perf table for the value "Memory" 
+Perf 
+| search "Memory"
+
+// Search is not case sensitive by default
+Perf 
+| search "memory"
+
+==================================================================================================
+// Although you can make it sensitive using a switch
+Perf 
+| search kind=case_sensitive "memory" 
+==================================================================================================
+Without a table, search goes arcross all tables in the current database Warning, this takes a looooooooooong time to run, and it is highly likely it will time out on a large database, like the Log Analytics Demo database. 
+search "Memory"
+==================================================================================================
+// A better choice is to limit the search to specific tables
+search in (Perf, Event, Alert) "Contoso"
+==================================================================================================
+// The syntax......: Perf | search "Contoso"
+// is the same as..: search in (Perf) "Contoso"
+==================================================================================================
+// Within a table, you can search a specific column for an exact value
+Perf 
+| search CounterName=="Available MBytes"
+==================================================================================================
+// Can also search for the value anywhere in the text in the specified column
+Perf 
+| search CounterName:"MBytes"
+==================================================================================================
+// This searched for a column whose value exactly matched the word Memory
+Perf 
+| search "Memory"
+==================================================================================================
+// Can also search across all columns using wildcards
+Perf 
+| search "*Bytes*"                  // Anywhere in any column's text
+
+Perf
+| search * startswith "Bytes"       // Begins with Bytes then any text after it
+
+Perf
+| search * endswith "Bytes"         // Ends with Bytes
+
+Perf 
+| search "Free*bytes" // Begins with Free, ends with bytes, anything in between
+==================================================================================================
+// Searches can be combined logically
+Perf 
+| search "Free*bytes" and ("C:" or "D:")
+
+
+// Search also supports regular expressions
+Perf 
+| search InstanceName matches regex "[A-Z]:"
+==================================================================================================
+------------------------------------------------------------------------------
+// Where
+------------------------------------------------------------------------------
+
+// Similar to search, where limits the result set. Rather than looking across columns for values, where limits based on conditions
+Perf 
+| where TimeGenerated >= ago(1h)
+
+==================================================================================================
+// ago allows for relative date ranges. Ago says "start right now, then go back
+// in time N quantity. These can be expressed using the following abbreviations
+//            d - days
+//            h - hours
+//            m - minutes
+//            s - seconds
+//           ms - milliseconds
+//  microsecond - microseconds
+==================================================================================================
+// Can build up the where by adding to it logically
+Perf 
+| where TimeGenerated  >= ago(1h)
+    and CounterName == "Bytes Received/sec"
+==================================================================================================
+// Multiple ands are allowed
+Perf 
+| where TimeGenerated  >= ago(1h)
+    and CounterName == "Bytes Received/sec"
+    and CounterValue > 0
+==================================================================================================
+// OR logic is allowed too!
+Perf 
+| where TimeGenerated  >= ago(1h)
+    and (CounterName == "Bytes Received/sec"
+         or  
+         CounterName == "% Processor Time"
+        )
+==================================================================================================
+// Combining and's and or's
+Perf 
+| where TimeGenerated  >= ago(1h)
+    and (CounterName == "Bytes Received/sec"
+         or
+         CounterName  == "% Processor Time"
+        )
+    and CounterValue > 0
+==================================================================================================
+// Stackable where operators
+Perf 
+| where TimeGenerated  >= ago(1h)
+| where (CounterName == "Bytes Received/sec"
+         or
+         CounterName  == "% Processor Time"
+        )
+| where CounterValue > 0
+==================================================================================================
+// You can simulate search using where. Here it searches all columns
+// in the input for the phrase Bytes somewhere in a column's value
+Perf 
+| where * has "Bytes"
+==================================================================================================
+// Similar to search, you can search positional matches
+Perf
+| where * hasprefix "Bytes"  // At the start
+
+Perf
+| where * hassuffix "Bytes"  // At the end
+
+Perf
+| where * contains "Bytes"   // contains and has behave the same
+==================================================================================================
+// Where supports regex as well
+Perf
+| where InstanceName matches regex "[A-Z]:"
+==================================================================================================
+-----------------------------------------------------------------------------
+// Take
+------------------------------------------------------------------------------
+// Take is used to grab a random number of rows from the input data
+Perf 
+| take 10 
+==================================================================================================
+// There is no guarantee to which rows are returned, and the exact same query run a second time may result in a different set of rows (or it may be the same, depends on various factors)
+Perf 
+| take 10 
+==================================================================================================
+// Take can be combined with other language operators
+Perf 
+| where TimeGenerated  >= ago(1h)
+    and CounterName == "Bytes Received/sec"
+    and CounterValue > 0
+| take 5
+==================================================================================================
+// Limit is a synonym for take
+Perf 
+| limit 10
+==================================================================================================
+------------------------------------------------------------------------------
+// Count
+------------------------------------------------------------------------------
+
+// Returns the number of rows in the input dataset
+Perf 
+| count 
+==================================================================================================
+// Can also use with other filters
+Perf 
+| where TimeGenerated  >= ago(1h)
+    and CounterName == "Bytes Received/sec"
+    and CounterValue > 0
+| count
+==================================================================================================
+------------------------------------------------------------------------------
+// Summarize
+------------------------------------------------------------------------------
+// Summariaze allows you count number of rows by column using the count() aggregation function
+Perf 
+| summarize count() by CounterName
+==================================================================================================
+// Can break down by multiple columns
+Perf 
+| summarize count() by ObjectName, CounterName
+==================================================================================================
+// You can rename the output column for count
+Perf 
+| summarize PerfCount=count() 
+         by ObjectName, CounterName
+==================================================================================================
+// With Summarize, you can  use other aggregation functions
+Perf 
+| where CounterName == "% Free Space"
+| summarize NumberOfEntries=count()
+          , AverageFreeSpace=avg(CounterValue) 
+         by CounterName
+==================================================================================================
+// Bin allows you to summarize into logical groups, like days
+Perf 
+| summarize NumberOfEntries=count() 
+         by bin(TimeGenerated, 1d)
+==================================================================================================
+// Can bin at multiple levels
+Perf 
+| summarize NumberOfEntries=count() 
+         by CounterName
+          , bin(TimeGenerated, 1d)
+==================================================================================================
+// Order in the query determines the order in the output
+Perf 
+| summarize NumberOfEntries=count() 
+         by bin(TimeGenerated, 1d)
+          , CounterName
+==================================================================================================
+// You can bin by values other than dates.
+// Here we see number of entries for each level at 
+// % Free Space
+Perf
+| where CounterName == "% Free Space"
+| summarize NumberOfRowsAtThisPercentLevel=count() 
+         by bin(CounterValue,10)
+==================================================================================================
+------------------------------------------------------------------------------
+// Extend
+------------------------------------------------------------------------------
+// Extend creates a calculated column and adds to the result set
+Perf 
+| where CounterName == "Free Megabytes"
+| extend FreeGB = CounterValue / 1000
+==================================================================================================
+// Can extend multiple columns at the same time
+Perf 
+| where CounterName == "Free Megabytes"
+| extend FreeGB = CounterValue / 1000
+       , FreeKB = CounterValue * 1000
+==================================================================================================
+// Could use to repeat a column
+Perf 
+| where CounterName == "Free Megabytes"
+| extend FreeGB = CounterValue / 1000
+       , FreeMB = CounterValue 
+       , FreeKB = CounterValue * 1000
+==================================================================================================
+// Can also use with strcat to create new string columns
+Perf
+| extend ObjectCounter = strcat(ObjectName, " - ", CounterName) 
+==================================================================================================
+------------------------------------------------------------------------------
+// Project
+------------------------------------------------------------------------------
+
+// Project allows you to select a subset of columns
+Perf
+| project ObjectName
+        , CounterName 
+        , InstanceName 
+        , CounterValue 
+        , TimeGenerated 
+==================================================================================================
+// Combine Project with Extend
+Perf
+| where CounterName == "Free Megabytes"
+| project ObjectName
+        , CounterName 
+        , InstanceName 
+        , CounterValue 
+        , TimeGenerated 
+| extend FreeGB = CounterValue / 1000
+       , FreeMB = CounterValue 
+       , FreeKB = CounterValue * 1000
+==================================================================================================
+// You can use extend prior to project to calculate on a field
+// you don't want in the final output (Counter Value omitted)
+Perf
+| where CounterName == "Free Megabytes"
+| extend FreeGB = CounterValue / 1000
+       , FreeMB = CounterValue 
+       , FreeKB = CounterValue * 1000
+| project ObjectName
+        , CounterName 
+        , InstanceName 
+        , TimeGenerated 
+        , FreeGB 
+        , FreeKB 
+        , FreeMB 
+==================================================================================================
+// Project can simulate the extend
+Perf
+| where CounterName == "Free Megabytes"
+| project ObjectName 
+        , CounterName 
+        , InstanceName 
+        , TimeGenerated 
+        , FreeGB = CounterValue / 1000
+        , FreeMB = CounterValue 
+        , FreeKB = CounterValue * 1000
+==================================================================================================
+// There is a variant called project-away. It will project all except the 
+// columns listed
+Perf
+| where TimeGenerated > ago(1h)
+| project-away TenantId
+             , SourceSystem 
+             , CounterPath 
+             , MG
+==================================================================================================
+// If you only want to rename a column, then another variant of project is project-rename. It will rename the specified column but then pass the rest of the columns through
+Perf
+| where TimeGenerated > ago(1h)
+| project-rename myRenamedComputer = Computer 
+==================================================================================================
+------------------------------------------------------------------------------
+// Distinct
+------------------------------------------------------------------------------
+// Returns a list of deduplicated values for columns from the input dataset
+Perf 
+| distinct ObjectName, CounterName
+==================================================================================================
+// Distinct can be used to limit a result set 
+// Get a list of all sources that had an error event
+Event
+| where EventLevelName == "Error"
+| distinct Source
+==================================================================================================
+------------------------------------------------------------------------------
+// Top
+------------------------------------------------------------------------------
+// Top returns the first N rows of the dataset when the dataset is sorted by the "by" clause.
+Perf
+| top 20 by TimeGenerated desc
+==================================================================================================
+// When we combine what we've learned to produce something useful. 
+// Here we're going to get a list of computers that are low on disk space
+Perf
+| where CounterName == "Free Megabytes"  // Get the Free Megabytes
+    and TimeGenerated >= ago(1h)         // ...within the last hour
+| project Computer                       // For each return the Computer Name
+        , TimeGenerated                  // ...and when the counter was generated
+        , CounterName                    // ...and the Counter Name
+        , FreeMegabytes=CounterValue     // ...and rename the counter value
+| distinct Computer                      // Now weed out duplicate rows as
+         , TimeGenerated
+         , CounterName                   // ...the perf table will have
+         , FreeMegabytes                 // ...multiple entries during the day
+| top 25 by FreeMegabytes asc            // Filter to most critical ones
+==================================================================================================
+// Module 3 - Scalar Functions
+==================================================================================================
+// The demos in this module serve as a very basic introduction to the KQL
+// language within the Azure Log Analytics environment. 
+==================================================================================================
+------------------------------------------------------------------------------
+// print
+------------------------------------------------------------------------------
+
+// print can be used to display output to the result grid. It is primarily a debugging tool. You can use it for static text print "Hello World"
+==================================================================================================
+// But more commonly to confirm calculations
+print 11 * 3
+==================================================================================================
+// You can also name the output column
+print TheAnswerToLifeTheUniverseAndEverything = 21 * 2
+==================================================================================================
+------------------------------------------------------------------------------
+// now
+------------------------------------------------------------------------------
+// Returns the current date/time
+print now()
+==================================================================================================
+// now is used mostly in datetime math, which is in a later demo in this module
+==================================================================================================
+------------------------------------------------------------------------------
+// ago
+------------------------------------------------------------------------------
+==================================================================================================
+// ago returns a time in the past, using the current time as a starting point
+// You can use:
+//           d - days
+//           h - hours
+//           m - minutes
+//           s - seconds
+//          ms - milliseconds
+// microsecond - microseconds
+//        tick - nanosecond
+==================================================================================================
+print ago(1d)           // days
+
+print ago(1h)           // hours
+
+print ago(1m)           // minutes
+
+print ago(1s)           // seconds 
+
+print ago(1ms)          // millisecond
+
+print ago(1microsecond) // microsecond
+
+print ago(1tick)        // nanosecond
+==================================================================================================
+// You can use values other than 1
+print ago(365d) // days
+
+print ago(12h)  // hours
+
+print ago(10m)  // minutes
+
+print ago(90s)  // seconds
+==================================================================================================
+// Use negative values to go into the future
+print ago(-1d)       // tomorrow
+
+print ago(-365d)     // 1 year in the future
+
+print ago(-1h)       // an hour from now
+==================================================================================================
+------------------------------------------------------------------------------
+// sort (aka order)
+------------------------------------------------------------------------------
+// sort will sort the output of a query
+Perf
+| where TimeGenerated > ago(15m)
+| where CounterName == "Avg. Disk sec/Read"
+    and InstanceName == "C:"
+| project Computer
+        , TimeGenerated 
+        , ObjectName
+        , CounterName 
+        , InstanceName 
+        , CounterValue 
+| sort by Computer
+        , TimeGenerated 
+==================================================================================================
+// By default sort always uses desc (descending) order. You can override
+Perf
+| where TimeGenerated > ago(15m)
+| where CounterName == "Avg. Disk sec/Read"
+    and InstanceName == "C:"
+| project Computer
+        , TimeGenerated 
+        , ObjectName
+        , CounterName 
+        , InstanceName 
+        , CounterValue 
+| sort by Computer asc
+        , TimeGenerated asc
+==================================================================================================        
+// or mix
+Perf
+| where TimeGenerated > ago(15m)
+| where CounterName == "Avg. Disk sec/Read"
+    and InstanceName == "C:"
+| project Computer
+        , TimeGenerated 
+        , ObjectName
+        , CounterName 
+        , InstanceName 
+        , CounterValue 
+| sort by Computer asc
+        , TimeGenerated 
+==================================================================================================
+// Order and sort are aliases for each other
+Perf
+| where TimeGenerated > ago(15m)
+| where CounterName == "Avg. Disk sec/Read"
+    and InstanceName == "C:"
+| project Computer
+        , ObjectName
+        , CounterName 
+        , InstanceName 
+        , CounterValue 
+        , TimeGenerated 
+| order by Computer asc
+         , TimeGenerated 
+==================================================================================================
+------------------------------------------------------------------------------
+// Extract
+------------------------------------------------------------------------------
+// Here's some demo data we can use...
+Perf
+| where ObjectName == "LogicalDisk"
+    and InstanceName matches regex "[A-Z]:"
+==================================================================================================
+// Extract pulls part of a passed in string (the third parameter) based on the regular expression placed inside parenthesis
+// The second param determines what is returned. A 0 returns the whole expression
+Perf
+| where ObjectName == "LogicalDisk"
+    and InstanceName matches regex "[A-Z]:"
+| project Computer 
+        , CounterName 
+        , extract("[A-Z]:", 0, InstanceName)
+==================================================================================================
+// When the second param is 1, it returns just the part in the parenthesis
+Perf
+| where ObjectName == "LogicalDisk"
+    and InstanceName matches regex "[A-Z]:"
+| project Computer 
+        , CounterName 
+        , extract("([A-Z]):", 1, InstanceName)
+==================================================================================================
+------------------------------------------------------------------------------
+// Parse
+------------------------------------------------------------------------------
+// Here is a subset of the data stored in the RenderedDescription column for 
+// one row, just so you can see what we are trying to parse
+==================================================================================================
+//Event code: 3005  Event message: An unhandled exception has occurred.  Event time: 4/1/2018 11:44:43 PM  Event time (UTC): 4/1/2018 11:44:43 PM  Event ID: b8eea7d21d044fa8a0a774392f1f5b24  Event sequence: 5892  Event occurrence: 217  Event detail code: 0    Application information:      Application domain: /LM/W3SVC/2/ROOT-2-131670348328019759      Trust level: Full      Application Virtual Path: /      Application Path: C:\inetpub\ContosoRetail\      Machine name: CONTOSOWEB1    Process information:      Process ID: 13200      Process name: w3wp.exe      Account name: IIS APPPOOL\ContosoRetail    Exception information:      Exception type: FormatException  
+==================================================================================================      
+// ... more data followed
+
+// Think of parse as telling KQL where it place the cursor for reading text.
+
+// Starting with just a string of text, "Event code: ", tells it to skip over that text and start reading at the first character after it.
+
+// next, it will read from that position and go until it finds the phrase " Event message: ". All of that text will be put in the myEventCode variable. 
+
+// The cursor is now positioned after Event message:, so it will read from there until it finds " Event time: ". That text will be stored inside
+// myEventMessage. 
+
+// An * means either read until the next string, or read until end of string. 
+// We didn't provide a column though for it to go in, so this will read 
+// to the end then just throw it away as we don't need it. 
+Event
+| where RenderedDescription startswith "Event code:" 
+| parse RenderedDescription with "Event code: " myEventCode 
+                                 " Event message: " myEventMessage 
+                                 " Event time: " myEventTime 
+                                 " Event time (UTC): " myEventTimeUTC 
+                                 " Event ID: " myEventID 
+                                 " Event sequence: " myEventSequence
+                                 " Event occurrence: " *
+| project myEventCode 
+        , myEventMessage 
+        , myEventTime 
+        , myEventTimeUTC 
+        , myEventID 
+        , myEventSequence 
+==================================================================================================
+------------------------------------------------------------------------------
+// Datetime / timespan arithmetic
+------------------------------------------------------------------------------
+
+// Determine how long ago a counter was generated
+Perf
+| where CounterName == "Avg. Disk sec/Read"
+| where CounterValue > 0
+| take 100                       // done just to give us a small dataset to demo
+| extend HowLongAgo=( now() - TimeGenerated )
+| project Computer 
+        , CounterName
+        , CounterValue  
+        , TimeGenerated 
+        , HowLongAgo 
+
+==================================================================================================
+// Time since a specifc date (i.e. start of the year)
+Perf
+| where CounterName == "Avg. Disk sec/Read"
+| where CounterValue > 0
+| take 100                       // done just to give us a small dataset to demo
+| extend HowLongAgo=( now() - TimeGenerated )
+       , TimeSinceStartOfYear=( TimeGenerated - datetime(2018-01-01) )
+| project Computer 
+        , CounterName
+        , CounterValue  
+        , TimeGenerated 
+        , HowLongAgo 
+        , TimeSinceStartOfYear 
+==================================================================================================
+
+// To convert a timespan into a specific unit, divide by it
+// Here we divide by 1 hour to convert the output to hours
+// (Also note the need to extend twice to use a calculated value
+//  within another calculation)
+Perf
+| where CounterName == "Avg. Disk sec/Read"
+| where CounterValue > 0
+| take 100                       // done just to give us a small dataset to demo
+| extend HowLongAgo=( now() - TimeGenerated )
+       , TimeSinceStartOfYear=( TimeGenerated - datetime(2018-01-01) )
+| extend TimeSinceStartOfYearInHours=( TimeSinceStartOfYear / 1h )
+| project Computer 
+        , CounterName
+        , CounterValue  
+        , TimeGenerated 
+        , HowLongAgo 
+        , TimeSinceStartOfYear 
+        , TimeSinceStartOfYearInHours
+==================================================================================================
+
+// Get the amount of time used
+Usage
+| extend Duration=( EndTime - StartTime )
+| project Computer
+        , StartTime 
+        , EndTime 
+        , Duration 
+==================================================================================================
+------------------------------------------------------------------------------
+// StartOf...
+------------------------------------------------------------------------------
+
+// It can often be useful to know the "Start of", such as the start of the day,
+// week, month, or year
+Event
+| where TimeGenerated >= ago(7d)
+| extend DayGenerated = startofday(TimeGenerated)
+| project Source
+        , TimeGenerated 
+        , DayGenerated 
+
+==================================================================================================
+// Most often this would be used to get counts per time frame
+Event
+| where TimeGenerated >= ago(7d)
+| extend DayGenerated = startofday(TimeGenerated)
+| project Source
+        , DayGenerated 
+| summarize EventCount=count() 
+         by DayGenerated
+         , Source
+
+==================================================================================================
+// This could be done at other levels, such as month
+Event
+| where TimeGenerated >= ago(365d)
+| extend MonthGenerated = startofmonth(TimeGenerated)
+| project Source
+        , MonthGenerated 
+| summarize EventCount=count() 
+         by MonthGenerated
+         , Source
+==================================================================================================
+
+// You can make this easier to read with the addition of the sort operator
+// Most common you'd sort dates in desc order text in asc order
+Event
+| where TimeGenerated >= ago(365d)
+| extend MonthGenerated = startofmonth(TimeGenerated)
+| project Source
+        , MonthGenerated 
+| summarize EventCount=count() 
+         by MonthGenerated
+         , Source
+| sort by MonthGenerated desc
+        , Source asc
+
+==================================================================================================
+// Functions also exist for Year and Week
+Event
+| where TimeGenerated >= ago(365d)
+| extend YearGenerated = startofyear(TimeGenerated)
+| project Source
+        , YearGenerated 
+| summarize EventCount=count() 
+         by YearGenerated
+         , Source
+| sort by YearGenerated desc
+        , Source asc
+==================================================================================================
+
+Event
+| where TimeGenerated >= ago(365d)
+| extend WeekGenerated = startofweek(TimeGenerated)
+| project Source
+        , WeekGenerated 
+| summarize EventCount=count() 
+         by WeekGenerated
+         , Source
+| sort by WeekGenerated desc
+        , Source asc 
+==================================================================================================
+-----------------------------------------------------------------------------
+// EndOf...
+-----------------------------------------------------------------------------
+
+// Just like startof, there are corresponding functions for the end of a 
+// time period.
+Event
+| where TimeGenerated >= ago(7d)
+| extend DayGenerated = endofday(TimeGenerated)
+| project Source
+        , DayGenerated 
+| summarize EventCount=count() 
+         by DayGenerated
+         , Source
+| sort by DayGenerated desc
+        , Source asc 
+==================================================================================================
+
+// Week
+Event
+| where TimeGenerated >= ago(365d)
+| extend WeekGenerated = endofweek(TimeGenerated)
+| project Source
+        , WeekGenerated 
+| summarize EventCount=count() 
+         by WeekGenerated
+         , Source
+| sort by WeekGenerated desc
+        , Source asc 
+
+==================================================================================================
+// Month
+Event
+| where TimeGenerated >= ago(365d)
+| extend MonthGenerated = endofmonth(TimeGenerated)
+| project Source
+        , MonthGenerated 
+| summarize EventCount=count() 
+         by MonthGenerated
+         , Source
+| sort by MonthGenerated desc
+        , Source asc 
+
+==================================================================================================
+// Year
+Event
+| where TimeGenerated >= ago(365d)
+| extend YearGenerated = endofyear(TimeGenerated)
+| project Source
+        , YearGenerated 
+| summarize EventCount=count() 
+         by YearGenerated
+         , Source
+| sort by YearGenerated desc
+        , Source asc 
+
+==================================================================================================
+------------------------------------------------------------------------------
+// Between
+-----------------------------------------------------------------------------
+
+// Between is used to get a range of values. 
+Perf
+| where CounterName == "% Free Space" 
+| where CounterValue between ( 70.0 .. 100.0 )
+==================================================================================================
+// Between can also be used with dates (Note how the query editor detects our use of a date range, and alters the
+//  the date range at the top of the query window to read "Set in query")
+Perf
+| where CounterName == "% Free Space" 
+| where TimeGenerated between ( datetime(2018-04-01) .. datetime(2018-04-03) )
+==================================================================================================
+// There's also a "NOT" version
+Perf
+| where CounterName == "% Free Space" 
+| where CounterValue !between ( 0.0 .. 69.9999 )
+==================================================================================================
+------------------------------------------------------------------------------
+// todynamic
+------------------------------------------------------------------------------
+
+// Takes json stored in a string and lets you can address its indivdual values
+==================================================================================================
+// Here is an example of a json string stored in the security alert table in the
+   column ExtendedProperties
+// "{
+//   ""Alert Start Time (UTC)"": ""2018/04/02 10:57:59.7540414"",
+//   ""Source"": ""IP Address: 175.195.219.31"",
+//   ""Non-Existent Users"": ""84"",
+//   ""Existing Users"": ""1"",
+//   ""Failed Attempts"": ""85"",
+//   ""Successful Logins"": ""0"",
+//   ""Successful User Logons"": ""[]"",
+//   ""Account Logon Ids"": ""[]"",
+//   ""Failed User Logons"": ""DEMOUSER"",
+//   ""End Time UTC"": ""4/2/2018 11:57:54 AM"",
+//   ""ActionTaken"": ""Detected"",
+//   ""resourceType"": ""Virtual Machine"",
+//   ""ServiceId"": ""fb2ebac8-5667-4a74-b9cb-5dba27c9faeb"",
+//   ""ReportingSystem"": ""Azure"",
+//   ""OccuringDatacenter"": ""southcentralus""
+// }"
+==================================================================================================
+// After converting it dynamically, use the key in [] to get the value
+SecurityAlert
+| extend ExtProps=todynamic(ExtendedProperties)
+| project AlertName 
+        , TimeGenerated 
+        , ExtProps["Alert Start Time (UTC)"]
+        , ExtProps["Source"]
+        , ExtProps["Non-Existent Users"]
+        , ExtProps["Existing Users"]
+        , ExtProps["Failed Attempts"]
+        , ExtProps["Successful Logins"]
+        , ExtProps["Successful User Logons"]
+        , ExtProps["Account Logon Ids"]
+        , ExtProps["Failed User Logons"]
+        , ExtProps["End Time UTC"]
+        , ExtProps["ActionTaken"]
+        , ExtProps["resourceType"]
+        , ExtProps["ServiceId"]
+        , ExtProps["ReportingSystem"]
+        , ExtProps["OccuringDatacenter"]
+==================================================================================================
+// You can also use column renaming to give them decent column names
+SecurityAlert
+| extend ExtProps=todynamic(ExtendedProperties)
+| project AlertName 
+        , TimeGenerated 
+        , AlertStartTime = ExtProps["Alert Start Time (UTC)"]
+        , Source = ExtProps["Source"]
+        , NonExistentUsers = ExtProps["Non-Existent Users"]
+        , ExistingUsers = ExtProps["Existing Users"]
+        , FailedAttempts = ExtProps["Failed Attempts"]
+        , SuccessfulLogins = ExtProps["Successful Logins"]
+        , SuccessfulUserLogins = ExtProps["Successful User Logons"]
+        , AccountLogonIds = ExtProps["Account Logon Ids"]
+        , FailedUserLogins = ExtProps["Failed User Logons"]
+        , EndTimeUTC = ExtProps["End Time UTC"]
+        , ActionTaken = ExtProps["ActionTaken"]
+        , ResourceType = ExtProps["resourceType"]
+        , ServiceId = ExtProps["ServiceId"]
+        , ReportingSystem = ExtProps["ReportingSystem"]
+        , OccuringDataCenter = ExtProps["OccuringDatacenter"]
+==================================================================================================
+
+// If the key name in json doesn't have spaces, you can use property notation instead of array notation
+SecurityAlert
+| extend ExtProps=todynamic(ExtendedProperties)
+| project AlertName 
+        , TimeGenerated 
+        , AlertStartTime = ExtProps["Alert Start Time (UTC)"]
+        , Source = ExtProps.Source
+        , NonExistentUsers = ExtProps["Non-Existent Users"]
+        , ExistingUsers = ExtProps["Existing Users"]
+        , FailedAttempts = ExtProps["Failed Attempts"]
+        , SuccessfulLogins = ExtProps["Successful Logins"]
+        , SuccessfulUserLogins = ExtProps["Successful User Logons"]
+        , AccountLogonIds = ExtProps["Account Logon Ids"]
+        , FailedUserLogins = ExtProps["Failed User Logons"]
+        , EndTimeUTC = ExtProps["End Time UTC"]
+        , ActionTaken = ExtProps.ActionTaken
+        , ResourceType = ExtProps.resourceType
+        , ServiceId = ExtProps.ServiceId
+        , ReportingSystem = ExtProps.ReportingSystem
+        , OccuringDataCenter = ExtProps.OccuringDatacenter
+==================================================================================================
+// Although it doesn't apply for this example, multilevel notation is supported, such as: ExtProps.Level1.Level2
+------------------------------------------------------------------------------
+// format_datetime / format_timespan
+------------------------------------------------------------------------------
+
+// format_datetime allows you to return specific date formats
+Perf
+| take 100                       // done just to give us a small dataset to demo
+| project CounterName 
+        , CounterValue 
+        , TimeGenerated 
+        , format_datetime(TimeGenerated, "y-M-d")
+        , format_datetime(TimeGenerated, "yyyy-MM-dd")
+        , format_datetime(TimeGenerated, "MM/dd/yyyy")
+        , format_datetime(TimeGenerated, "MM/dd/yyyy hh:mm:ss tt")
+        , format_datetime(TimeGenerated, "MM/dd/yyyy HH:mm:ss")
+        , format_datetime(TimeGenerated, "MM/dd/yyyy HH:mm:ss.ffff")
+==================================================================================================       
+// Supported syntax - one letter is single number, two letters two numbers
+//    d - Day, 1 to 31
+//   dd - Day, 01 to 31
+//    M - Month, 1 to 12
+//   MM - Month, 01 to 12
+//    y - Year, 0 to 9999
+//   yy - Year, 00 to 9999
+// yyyy - Year, 0000 to 9999
+==================================================================================================
+// Hours and subsceonds can also be used with format_timespan (see below)
+//  h - Hour, 1 to 12
+// hh - Hour, 01 to 12
+//  H - Hour, 1 to 23
+// HH - Hour, 01 to 23
+//  m - Minute, 0 to 59
+// mm - Minute, 00 to 59
+//  s - Second, 0 to 59
+// ss - Second, 00 to 59
+// tt - am/pm
+==================================================================================================
+// f/F can also be used for subseconds. Lowercase f will always display a 0,
+// uppercase F's will only display a number if there's a subsecond value. 
+// Otherwise nothing is displayed. 
+// The Number of f's indicates the precesion down to millionth's of a second
+
+==================================================================================================
+// You can use these as separators:
+// / - : , . _ [ ] and a space
+==================================================================================================
+// format_timespan formats a timespan. 
+// To use a datetime you have to convert it to a timespan using totimespan()
+Perf
+| take 100                       // done just to give us a small dataset to demo
+| project CounterName 
+        , CounterValue 
+        , TimeGenerated 
+        , format_timespan(totimespan(TimeGenerated), "hh:mm:ss")
+==================================================================================================
+
+// Timespans are typically the result of datetime math
+Perf
+| where TimeGenerated between ( ago(7d) .. ago(2d) )
+| take 100                       // done just to give us a small dataset to demo
+| extend TimeGen = now() - TimeGenerated
+| project CounterName 
+        , CounterValue 
+        , TimeGenerated 
+        , TimeGen 
+        , format_timespan(TimeGen, "hh:mm:ss")
+        , format_timespan(TimeGen, "HH:mm:ss")
+        , format_timespan(TimeGen, "h:m:s")
+        , format_timespan(TimeGen, "H:m:s")
+==================================================================================================
+
+// f/F can also be used for subseconds. Lowercase f will always display a 0,
+// uppercase F's will only display a number if there's a subsecond value. 
+// Otherwise nothing is displayed. 
+// The Number of f's indicates the precesion down to millionth's of a second
+Perf
+| take 100                       // done just to give us a small dataset to demo
+| extend TimeGen = now() - TimeGenerated 
+| project CounterName 
+        , CounterValue 
+        , TimeGenerated 
+        , TimeGen 
+        , format_timespan(TimeGen, "HH:mm:ss.f")
+        , format_timespan(TimeGen, "HH:mm:ss.F")
+        , format_timespan(TimeGen, "HH:mm:ss.ff")
+        , format_timespan(TimeGen, "HH:mm:ss.FF")
+        , format_timespan(TimeGen, "HH:mm:ss.fff")
+        , format_timespan(TimeGen, "HH:mm:ss.FFF")
+        , format_timespan(TimeGen, "HH:mm:ss.ffff")
+        , format_timespan(TimeGen, "HH:mm:ss.FFFF")
+        , format_timespan(TimeGen, "HH:mm:ss.fffff")
+        , format_timespan(TimeGen, "HH:mm:ss.FFFFF")
+        , format_timespan(TimeGen, "HH:mm:ss.ffffff")
+        , format_timespan(TimeGen, "HH:mm:ss.FFFFFF")
+        , format_timespan(TimeGen, "HH:mm:ss.fffffff")
+        , format_timespan(TimeGen, "HH:mm:ss.FFFFFFF")
+
+==================================================================================================
+------------------------------------------------------------------------------
+// datetime_part
+------------------------------------------------------------------------------
+
+// Extracts part of a date time
+Perf
+| take 100                       // done just to give us a small dataset to demo
+| project CounterName 
+        , CounterValue 
+        , TimeGenerated 
+        , year = datetime_part("year", TimeGenerated)
+        , quarter = datetime_part("quarter", TimeGenerated)
+        , month = datetime_part("month", TimeGenerated)
+        , weekOfYear = datetime_part("weekOfYear", TimeGenerated)
+        , day = datetime_part("day", TimeGenerated)
+        , dayOfYear = datetime_part("dayOfYear", TimeGenerated)
+        , hour = datetime_part("hour", TimeGenerated)
+        , minute = datetime_part("minute", TimeGenerated)
+        , second = datetime_part("second", TimeGenerated)
+        , millisecond = datetime_part("millisecond", TimeGenerated)
+        , microsecond = datetime_part("microsecond", TimeGenerated)
+        , nanosecond = datetime_part("nanosecond", TimeGenerated)
+==================================================================================================
+
+// Can be useful if you want to group the number of events by part of
+// the calendar, regardless of a specific date
+// Here we'll count number of events by hour to see which hour of the day
+// has the most events
+Event
+| where TimeGenerated >= ago(7d)
+| extend HourOfDay = datetime_part("hour", TimeGenerated)
+| project HourOfDay 
+| summarize EventCount=count() 
+         by HourOfDay
+| sort by HourOfDay asc 
+==================================================================================================
+
+------------------------------------------------------------------------------
+// Case
+------------------------------------------------------------------------------
+
+// Used to create labels based on values
+Perf
+| where CounterName == "% Free Space"
+| extend FreeLevel = case( CounterValue < 10, "Critical"
+                         , CounterValue < 30, "Danger"
+                         , CounterValue < 50, "Look at it"
+                         , "You're OK!"
+                         )
+| project Computer
+        , CounterName
+        , CounterValue 
+        , FreeLevel 
+
+==================================================================================================
+// These can be useful when summarizing
+Perf
+| where CounterName == "% Free Space"
+| extend FreeLevel = case( CounterValue < 10, "Critical (Less than 10% free disk space)"
+                         , CounterValue < 30, "Danger (10% to 30% free disk space)"
+                         , CounterValue < 50, "Look at it (30% to 50% free disk space)"
+                         , "You're OK! (More than 50% free disk space)"
+                         )
+| summarize ComputerCount=count() 
+         by FreeLevel
+==================================================================================================
+------------------------------------------------------------------------------
+// iif
+------------------------------------------------------------------------------
+
+// iif is a mini if/then/else 
+Perf
+| where CounterName == "% Free Space"
+| extend FreeState = iif( CounterValue < 50
+                        , "You might want to look at this"
+                        , "You're OK!"
+                        )
+| project Computer
+        , CounterName
+        , CounterValue 
+        , FreeState 
+
+==================================================================================================
+// Could also be used with dates
+Perf
+| where CounterName == "% Free Space"
+| where TimeGenerated between ( ago(60d) .. now() )
+| extend CurrentMonth = iif( datepart("month", TimeGenerated) == datepart("month", now()) 
+                           , "Current Month"
+                           , "Past Months"
+                           )
+| project Computer
+        , CounterName
+        , CounterValue 
+        , CurrentMonth
+        , TimeGenerated  
+==================================================================================================
+------------------------------------------------------------------------------
+// isempty / isnull
+-----------------------------------------------------------------------------
+
+// In KQL, strings can be empty, and numeric fields can be null. To handle
+// determining when a string is empty, or a number is null, we have
+// isempty and isnull
+
+// isempty matches on empty text strings
+Perf
+| where isempty( InstanceName )
+| count
+
+Perf
+| where TimeGenerated >= ago(1h)
+| extend InstName = iif( isempty(InstanceName)
+                       , "NO INSTANCE NAME"
+                       , InstanceName
+                       )
+| project Computer
+        , TimeGenerated 
+        , InstanceName 
+        , InstName 
+        , ObjectName 
+        , CounterName 
+==================================================================================================
+// isnull matches on null columns
+Perf
+| where isnull( SampleCount )
+| count
+
+Perf
+| where TimeGenerated >= ago(1h)
+| extend SampleCountNull = iif( isnull(SampleCount) 
+                              , "No Sample Count"
+                              , tostring(SampleCount) 
+                              )
+| project Computer 
+        , CounterName 
+        , SampleCount 
+        , SampleCountNull 
+==================================================================================================
+-----------------------------------------------------------------------------
+// Split
+------------------------------------------------------------------------------
+
+// Use split to break a string into an array based upon a delimiter
+// Note \ is an escape character so you have to use two of them to denote
+// a single one in the string
+Perf
+| take 100                       // done just to give us a small dataset to demo
+| project Computer 
+        , CounterName 
+        , CounterValue 
+        , CounterPath 
+        , CPSplit = split(CounterPath, "\\")
+
+==================================================================================================
+// An option third parameter lets you extract a component of the split array
+// into single item arrays
+Perf
+| take 100                       // done just to give us a small dataset to demo
+| extend myComputer = split(CounterPath, "\\", 2) 
+       , myObjectInstance = split(CounterPath, "\\", 3)
+       , myCounterName = split(CounterPath, "\\", 4)
+| project Computer 
+        , ObjectName 
+        , CounterName 
+        , InstanceName 
+        , myComputer 
+        , myObjectInstance
+        , myCounterName
+        , CounterPath  
+==================================================================================================
+
+// A better method though is to convert into a single array then
+// convert into individual items
+Perf
+| take 100                       // done just to give us a small dataset to demo
+| extend CounterPathArray = split(CounterPath, "\\") 
+| extend myComputer = CounterPathArray[2] 
+       , myObjectInstance = CounterPathArray[3]
+       , myCounterName = CounterPathArray[4]
+| project Computer 
+        , ObjectName 
+        , CounterName 
+        , InstanceName 
+        , myComputer 
+        , myObjectInstance
+        , myCounterName
+        , CounterPath  
+
+==================================================================================================
+------------------------------------------------------------------------------
+// String Operators
+------------------------------------------------------------------------------
+
+// The following string operators were seen in the module
+// 80% of the Operators You'll Ever Use:
+// startswith
+// endswith
+// has
+// hasprefix
+// hassuffix
+// contains
+// matches regex
+==================================================================================================
+// Most of these have case sensitive versions that end in _cs
+==================================================================================================
+// Without case sensitive
+Perf 
+| take 100                       // done just to give us a small dataset to demo
+| where CounterName contains "BYTES"
+==================================================================================================
+// With case senstive
+Perf 
+| take 100                       // done just to give us a small dataset to demo
+| where CounterName contains_cs "BYTES"
+
+==================================================================================================
+// These also have a "NOT" version
+Perf 
+| take 100                       // done just to give us a small dataset to demo
+| where CounterName !contains "Bytes"
+==================================================================================================
+
+// in - used to compare a column to a set of values
+Perf
+| take 1000                      // done just to give us a small dataset to demo
+| where CounterName in ("Disk Transfers/sec", "Disk Reads/sec", "Avg. Disk sec/Write") 
+==================================================================================================
+
+// Also has a NOT version
+Perf
+| take 100                       // done just to give us a small dataset to demo
+| where CounterName !in ( "Disk Transfers/sec"
+                        , "Disk Reads/sec"
+                        , "Avg. Disk sec/Write"
+                        ) 
+==================================================================================================
+------------------------------------------------------------------------------
+// strcat
+------------------------------------------------------------------------------
+
+// strcat is used to combine fields together
+Perf
+| take 100                       // done just to give us a small dataset to demo
+| extend CompObjCounter = strcat(Computer, " - ", ObjectName, " - ", CounterName) 
+| project CompObjCounter 
+        , TimeGenerated 
+        , CounterValue 
+
+==================================================================================================
+// Use strcat with case and datetime_part to get month names
+Perf
+| where CounterName == "% Free Space"
+| where TimeGenerated between ( ago(12m) .. now() )
+| extend MonthName = case( datetime_part("month", TimeGenerated) ==  1, "Jan "
+                         , datetime_part("month", TimeGenerated) ==  2, "Feb "
+                         , datetime_part("month", TimeGenerated) ==  3, "Mar "
+                         , datetime_part("month", TimeGenerated) ==  4, "Apr "
+                         , datetime_part("month", TimeGenerated) ==  5, "May "
+                         , datetime_part("month", TimeGenerated) ==  6, "Jun "
+                         , datetime_part("month", TimeGenerated) ==  7, "Jul "
+                         , datetime_part("month", TimeGenerated) ==  8, "Aug "
+                         , datetime_part("month", TimeGenerated) ==  9, "Sep "
+                         , datetime_part("month", TimeGenerated) == 10, "Oct "
+                         , datetime_part("month", TimeGenerated) == 11, "Nov "
+                         , datetime_part("month", TimeGenerated) == 12, "Dec "
+                         , "Unknown Month"
+                         )
+| extend DateText = strcat( MonthName
+                          , datetime_part("day", TimeGenerated)
+                          , ", "
+                          , datetime_part("year", TimeGenerated) 
+                          ) 
+| project Computer 
+        , CounterName 
+        , CounterValue 
+        , TimeGenerated 
+        , MonthName
+        , DateText  
+==================================================================================================
+------------------------------------------------------------------------------
+// Combining it all
+------------------------------------------------------------------------------
+
+// This query combines much of what we've learned in this course.
+
+// It first gets the Event table for all rows in the last year (365 days),
+// excluding the current month. We exclude the current month as since it is
+// not complete it might give misleading results
+
+// Next, it condenses the data, summarizing it to just the count of 
+// items for each month
+
+// After this it sorts the rows by the calendar month 
+
+// We then calculate the month number and year numbers as two new
+// columns
+
+// Next, we use a case to determine the text for the month number. 
+// Because we are using a calculated column in this, we had to create
+// a new extend so KQL would know it exists.
+
+// We then create a string with the year and month name. Like the
+// above, to use a calculated column we had to do another extend as
+// the calculated column doesn't exist until the extend is complete
+
+// Finally we project only the year-month string and the event count
+Event
+| where TimeGenerated between ( ago(365d) .. startofmonth(now()) )
+| summarize EventCount = count() by calMonth=startofmonth(TimeGenerated) 
+| sort by calMonth desc
+| extend MonthNumber = datetime_part("month", calMonth)
+       , YearNumber = datetime_part("year", calMonth)
+| extend MonthName = case( MonthNumber ==  1, "Jan "
+                         , MonthNumber ==  2, "Feb "
+                         , MonthNumber ==  3, "Mar "
+                         , MonthNumber ==  4, "Apr "
+                         , MonthNumber ==  5, "May "
+                         , MonthNumber ==  6, "Jun "
+                         , MonthNumber ==  7, "Jul "
+                         , MonthNumber ==  8, "Aug "
+                         , MonthNumber ==  9, "Sep "
+                         , MonthNumber == 10, "Oct "
+                         , MonthNumber == 11, "Nov "
+                         , MonthNumber == 12, "Dec "
+                         , "Unknown Month"
+                         )
+| extend YearMonth = strcat( MonthName, " - ", YearNumber) 
+| project YearMonth, EventCount
+
+==================================================================================================
+------------------------------------------------------------------------------
+// Kusto Query Language (KQL) From Scratch
+// Module 4 - Advanced Aggregations
+==================================================================================================
+------------------------------------------------------------------------------
+// arg_max / arg_min
+------------------------------------------------------------------------------
+
+// arg_max finds the maximum value for the column being summarized on, and 
+// returns the row where that maximum value was found
+Perf
+| summarize arg_max(CounterValue, *) by CounterName
+| sort by CounterName asc
+
+==================================================================================================
+// The second parameter indicates which columns to return. * means all.
+// By default it always returns the "by" column and the maximized value. 
+// 
+Perf
+| summarize arg_max(CounterValue, Computer, ObjectName) by CounterName
+| sort by CounterName asc
+==================================================================================================
+
+// arg_min does the same except, of course, finding the minimum value for 
+// the column being summarized on, and returning rows where that min
+// value was found
+Perf
+| project CounterName, CounterValue 
+| summarize arg_min(CounterValue, *) by CounterName
+| sort by CounterName asc
+==================================================================================================
+------------------------------------------------------------------------------
+// Makeset / Makelist
+------------------------------------------------------------------------------
+
+// Makeset - Creates a array of json objects by flattening a heirarcy. 
+Perf
+| summarize Counters = makeset(CounterName) by ObjectName
+==================================================================================================
+
+// Somthing more useful, getting a list of PCs low on disk space.
+Perf
+| where CounterName == "% Free Space"
+    and CounterValue <= 30
+| summarize Computers = makeset(Computer)
+==================================================================================================
+// We'll see examples of how to use these sets in the next module, 
+// Working with Datasets. 
+==================================================================================================
+// Makelist - Similar to makeset, but duplicates are not removed
+Perf
+| where CounterName == "% Free Space"
+    and CounterValue <= 30
+| summarize Computers = makelist(Computer)
+==================================================================================================
+// Note that makeset and makelist have an optional second parameter that
+// sets the max size of the returned list, which by default is 128
+Perf
+| where CounterName == "% Free Space"
+    and CounterValue <= 30
+| summarize Computers = makelist(Computer, 256)
+==================================================================================================
+------------------------------------------------------------------------------
+// mvexpand
+------------------------------------------------------------------------------
+
+// mvexpand takes a dynamic value (like a set or list) and converts it back
+// into individual rows
+Perf
+| where CounterName == "% Free Space"
+    and CounterValue <= 30
+| summarize Computers = makeset(Computer)
+| mvexpand Computers
+==================================================================================================
+
+SecurityAlert
+| extend ExtProps=todynamic(ExtendedProperties)
+| mvexpand ExtProps
+| project TimeGenerated 
+        , DisplayName 
+        , AlertName 
+        , AlertSeverity 
+        , ExtProps 
+==================================================================================================
+------------------------------------------------------------------------------
+// Percentiles
+------------------------------------------------------------------------------
+
+// Percentiles calculates the value that is greater than x% of the sampleset. Here, it shows the CounterValue that is higher than 5% of the other values in the group, then the value that is greater than 50% of the incoming data, and finally a value that is greater than 95% of the data.
+Perf
+| where CounterName == "Available MBytes"
+| summarize percentiles(CounterValue, 5, 50, 95) by Computer
+==================================================================================================
+// if this is one output row:
+// Computer       percentile_CounterValue_5  percentile_CounterValue_50  percentile_CounterValue_95
+// ContosoWebVM1             629.7383905746            2,605.4022856667           12,539.1563912150
+// Of all of the performance counter records for computer ContosoWebVM1 in the time range,
+// 5%  of the records show available disk space of    629.7383905746 or less
+// 50% of the records show available disk space of  2,605.4022856667 or less
+// 95% of the records show available disk space of 12,539.1563912150 or less
+
+// If, for example, we say that less than 1,000MB is a condition to be concerned
+// over, then only 5% of our records show we fall below this amount. At least
+// 50% of the records show we are OK (in other words > 1,000 MB)
+
+==================================================================================================
+// You can rename the columns if you need to using project-rename
+Perf
+| where CounterName == "Available MBytes"
+| summarize percentiles(CounterValue, 5, 50, 95) by Computer
+| project-rename Percent05 = percentile_CounterValue_5
+               , Percent50 = percentile_CounterValue_50 
+               , Percent95 = percentile_CounterValue_95 
+
+==================================================================================================
+// Or you can rename in the summarize call
+Perf
+| where CounterName == "Available MBytes"
+| summarize (Percent05, Percent50, Percent95) 
+          = percentiles(CounterValue, 5, 50, 95) 
+         by Computer
+
+==================================================================================================
+// You can set your own percentile levels
+Perf
+| where CounterName == "Available MBytes"
+| summarize percentiles(CounterValue, 10, 30, 50, 70, 90) by CounterName
+| sort by CounterName asc
+
+==================================================================================================
+// You can also return the data as a single column array using percentiles_array
+Perf
+| summarize percentiles_array(CounterValue, 5, 50, 95) by CounterName
+==================================================================================================
+
+// And then pivot the data so instead of coming back as columns, they
+// now appear as rows
+Perf
+| summarize percentarray = percentiles_array(CounterValue, 5, 50, 95) by CounterName
+| mvexpand percentarray
+
+==================================================================================================
+------------------------------------------------------------------------------
+// dcount
+------------------------------------------------------------------------------
+
+// dcount returnes an ESTIMATED number of DISTINCT rows, as opposed to counting on a distinct dataset, which is always accurate but slow. As a result dcount calculates faster especially over a very large dataset. 
+==================================================================================================
+// Security events have an id that describes the type of event
+SecurityEvent 
+| distinct EventID, Activity
+==================================================================================================
+// For comparison, count the different types of security events that occured
+// to a computer in the recent past
+SecurityEvent
+| where TimeGenerated >= ago(90d)
+| distinct Computer, EventID
+| summarize EventTypeCount = count(EventID) by Computer
+| sort by Computer asc
+==================================================================================================
+
+// Now we can use dcount to get an estimate of these
+SecurityEvent
+| where TimeGenerated >= ago(90d)
+| summarize dcount(EventID) by Computer
+| sort by Computer asc
+==================================================================================================
+
+// A second parameter lets you set the accuracy level
+// 0 = Least accurate, 1.6% error
+// 1 = Default, balances accuracy and time, 0.8% error level
+// 2 = Accurate but slow, 0.4% error
+// 3 = Extra accurate but slowest, 0.28% error level
+
+==================================================================================================
+// 0 = Least accurate, 1.6% error
+SecurityEvent
+| where TimeGenerated >= ago(90d)
+| summarize dcount(EventID, 0) by Computer
+| sort by Computer asc
+==================================================================================================
+
+// 1 = Default, balances accuracy and time, 0.8% error level
+// (Same as not using the second parameter in the first example)
+SecurityEvent
+| where TimeGenerated >= ago(90d)
+| summarize dcount(EventID, 1) by Computer
+| sort by Computer asc
+==================================================================================================
+
+// 2 = Accurate but slow, 0.4% error
+SecurityEvent
+| where TimeGenerated >= ago(90d)
+| summarize dcount(EventID, 2) by Computer
+| sort by Computer asc
+
+==================================================================================================
+// 3 = Extra accurate but slowest, 0.28% error level
+SecurityEvent
+| where TimeGenerated >= ago(90d)
+| summarize dcount(EventID, 3) by Computer
+| sort by Computer asc
+
+==================================================================================================
+-----------------------------------------------------------------------------
+// dcountif
+------------------------------------------------------------------------------
+
+// dcountif is similar to dcount, except it allows you to embed an if condition within the function call
+
+// Here we are only looking for EventIDs in a specific list
+SecurityEvent
+| where TimeGenerated >= ago(90d)
+| summarize dcountif( EventID
+                    , EventID in (4625, 4688, 4624, 4672, 4670, 4689, 4634, 4674)
+                    ) 
+         by Computer
+| sort by Computer asc
+==================================================================================================
+// dcountif has a similar accuracy switch as dcount, although it omits level 3
+// 0 = Least accurate, 1.6% error
+// 1 = Default, balances accuracy and time, 0.8% error level
+// 2 = Accurate but slow, 0.4% error
+==================================================================================================
+// 0 = Least accurate, 1.6% error
+SecurityEvent
+| where TimeGenerated >= ago(90d)
+| summarize dcountif( EventID
+                    , EventID in (4625, 4688, 4624, 4672, 4670, 4689, 4634, 4674)
+                    , 0
+                    ) 
+         by Computer
+| sort by Computer asc
+
+==================================================================================================
+// 1 = Default, balances accuracy and time, 0.8% error level
+// (Same as not using it)
+SecurityEvent
+| where TimeGenerated >= ago(90d)
+| summarize dcountif( EventID
+                    , EventID in (4625, 4688, 4624, 4672, 4670, 4689, 4634, 4674)
+                    , 1
+                    ) 
+         by Computer
+| sort by Computer asc
+
+
+// 2 = Accurate but slow, 0.4% error
+SecurityEvent
+| where TimeGenerated >= ago(90d)
+| summarize dcountif( EventID
+                    , EventID in (4625, 4688, 4624, 4672, 4670, 4689, 4634, 4674)
+                    , 2
+                    ) 
+         by Computer
+| sort by Computer asc
+
+==================================================================================================
+// For comparison, here is a similar version using count
+SecurityEvent
+| where TimeGenerated >= ago(90d)
+| distinct Computer, EventID
+| summarize EventTypeCount = countif( EventID in ( 4625, 4688, 4624, 4672
+                                                 , 4670, 4689, 4634, 4674
+                                                 )
+                                    ) by Computer
+| sort by Computer asc
+
+==================================================================================================
+-----------------------------------------------------------------------------
+// countif
+------------------------------------------------------------------------------
+
+// Like dcountif, countif allows you to add a filter condition.
+Perf 
+| summarize RowCount = countif(CounterName contains "Bytes") by CounterName
+| sort by CounterName asc
+==================================================================================================
+
+// Similar query without Countif, note that rows with a 0 count are suppressed
+Perf 
+| where CounterName contains "Bytes" 
+| summarize count() by CounterName
+| sort by CounterName asc
+
+==================================================================================================
+// We can add an extra where to remove the 0 valued rows
+Perf 
+| summarize RowCount = countif(CounterName contains "Bytes") by CounterName
+| where RowCount > 0
+| sort by CounterName asc
+
+==================================================================================================
+-----------------------------------------------------------------------------
+// pivot
+------------------------------------------------------------------------------
+
+// Let's say you have a report of computers, the event, and how many they had
+Event
+| project Computer, EventLevelName
+| summarize count() by Computer, EventLevelName
+| sort by Computer asc, EventLevelName asc
+
+==================================================================================================
+
+// A bit hard to read though, it'd make much more sense to have the event levels
+// come in as columns, in a spreadsheet like fashion. That's what Pivot will
+// do for you!
+Event
+| project Computer, EventLevelName 
+| evaluate pivot(EventLevelName)
+| sort by Computer asc
+
+==================================================================================================
+-----------------------------------------------------------------------------
+// top-nested
+------------------------------------------------------------------------------
+
+// top-nested does nested measurements. 
+
+// In this example, it first gets the top 3 ObjectNames as measured by their 
+// count. For each one of those, it gets the top 3 CounterNames, as measured
+// by their count
+Perf 
+| top-nested 3 of ObjectName by ObjectCount = count() 
+, top-nested 3 of CounterName by CounterNameCount = count() 
+| sort by ObjectName asc
+        , CounterName asc
+==================================================================================================
+
+// You can have as many items as you want, and go to many levels
+Perf 
+| top-nested 5 of ObjectName by ObjectCount = count() 
+, top-nested 5 of CounterName by CounterNameCount = count() 
+, top-nested 5 of InstanceName by InstanceCount = count()
+| sort by ObjectName asc
+        , CounterName asc
+        , InstanceName asc
+==================================================================================================
+
+// top-nested supports many different aggregations, including:
+// sum(), count(), max(), min(), dcount(), avg(), percentile(), percentilew(), 
+// or any algebric combination of these aggregation
+Perf 
+| top-nested 5 of ObjectName by ObjectSum = sum(CounterValue)
+, top-nested 5 of CounterName by CounterNameSum = sum(CounterValue) 
+, top-nested 5 of InstanceName by InstanceSum = sum(CounterValue)
+| sort by ObjectName asc
+        , CounterName asc
+        , InstanceName asc 
+==================================================================================================
+
+// top-nested can also include a row for others not included in the top X
+Perf 
+| top-nested 3 of ObjectName with others = "All Other Objects" 
+          by ObjectCount = count() 
+, top-nested 3 of CounterName 
+          by CounterNameCount = count() 
+| sort by ObjectName asc
+        , CounterName asc
+==================================================================================================
+
+// Other can be at all levels
+Perf 
+| top-nested 3 of ObjectName 
+        with others = "All Other Objects" 
+          by ObjectCount = count() 
+, top-nested 3 of CounterName 
+        with others = "All Other Counters" 
+          by CounterNameCount = count() 
+| sort by ObjectName asc
+        , CounterName asc
+==================================================================================================
+
+// or even just at the sub levels
+Perf 
+| top-nested 3 of ObjectName 
+          by ObjectCount = count() 
+, top-nested 3 of CounterName 
+        with others = "All Other Counters" 
+          by CounterNameCount = count() 
+| sort by ObjectName asc
+        , CounterName asc
+
+==================================================================================================
+------------------------------------------------------------------------------
+// max / min
+------------------------------------------------------------------------------
+
+// max is simple, it just returns the maximum value for the column being
+// passed in. 
+Perf
+| where CounterName == "Free Megabytes"
+| summarize max(CounterValue)
+==================================================================================================
+
+// min is almost identical
+Perf
+| where CounterName == "Free Megabytes"
+| summarize min(CounterValue)
+
+// If you want to return a more complex result set with additional columns,
+// use arg_max/arg_min (shown at the top of this module's demos)
+==================================================================================================
+------------------------------------------------------------------------------
+// sum / sumif
+------------------------------------------------------------------------------
+
+// Like max, sum is very simple, just returns a grand total for the indicated
+// column
+Perf
+| where CounterName == "Free Megabytes"
+| summarize sum(CounterValue)
+==================================================================================================
+
+// sumif allows you to add your condition to the parameter list
+Perf
+| summarize sumif(CounterValue, CounterName == "Free Megabytes")
+
+==================================================================================================
+------------------------------------------------------------------------------
+// any
+-----------------------------------------------------------------------------
+
+// any is a random row generator. When used with an *, it returns a random
+// row from the input dataset
+Perf
+| summarize any(*)
+
+// You can also pass in a specific column name to return just that column
+Perf
+| summarize any(Computer) 
+==================================================================================================
+// You can specify a combination of columns
+Perf
+| summarize any(ObjectName, CounterName, CounterValue)
+==================================================================================================
+// When you use with by, it returns a random row for each distinct value in the column after the by clause
+Perf
+| summarize any(*) by CounterName
+| sort by CounterName asc
+==================================================================================================
+// Module 5 - Working With Datasets
+==================================================================================================
+-----------------------------------------------------------------------------
+// let
+------------------------------------------------------------------------------
+// let has many uses. First, it can be used to represent a constant value
+let minCounterValue = 300;
+let counterName = "Free Megabytes";
+Perf
+| project Computer 
+        , TimeGenerated 
+        , CounterName 
+        , CounterValue 
+| where CounterName == counterName
+    and CounterValue <= minCounterValue
+==================================================================================================
+// This has advantages when the constant is used multiple times in a query,
+// making it easier to operationalize your query.
+let compName = "ContosoSQLSrv1";
+Perf
+| where Computer == compName
+| extend ThisIsFor = strcat( "This data is for computer ", compName)
+| project ThisIsFor 
+        , TimeGenerated 
+        , CounterName 
+        , CounterValue 
+==================================================================================================
+// Next, let can be used to hold calculated values
+let startDate = ago(12h);
+Perf 
+| project Computer 
+        , TimeGenerated 
+        , CounterName 
+        , CounterValue 
+| where TimeGenerated >= startDate
+==================================================================================================
+// let can hold datasets, to make things like union more readable
+// (More on unions in a bit...)
+let compName = "ContosoSQLSrv1";
+let UpdtSum = UpdateSummary
+  | where Computer == compName
+  | project Computer
+          , ComputerEnvironment
+          , ManagementGroupName
+          , OsVersion
+          , Resource
+          , ResourceGroup
+          , SourceSystem
+          , Type
+          , NETRuntimeVersion;
+let Updt = Update
+  | where Computer == compName
+  | project Computer
+          , ComputerEnvironment
+          , ManagementGroupName
+          , OSVersion
+          , Resource
+          , ResourceGroup
+          , SourceSystem
+          , Type
+          , Title
+          , UpdateState;
+union withsource = "SourceTable" 
+      UpdtSum
+    , Updt
+==================================================================================================
+// Finally, let can hold a function
+let dateDiffInDays = (date1: datetime, date2: datetime = datetime(2018-01-01))
+                     { (date1 - date2) / 1d }
+;
+print dateDiffInDays(now(), todatetime("2018-05-01"))
+
+// Similar to most languages, after declaring the name the ( ) contains the
+// parameters. Here we have two datetime values. The first is mandatory, 
+// the function will fail without it. The second is optional, if no value
+// is passed in it will use the value after the =, in this case 
+// datetime(2018-01-01)
+
+// Next are { } which house the actual function itself. Here we subtract the
+// date2 value from date1 and divide by 1d to get a value back in days
+
+// Here is an example where we take the default for date2
+let dateDiffInDays = (date1: datetime, date2: datetime = datetime(2018-01-01))            
+                     { (date1 - date2) / 1d }
+;
+print dateDiffInDays(now())
+==================================================================================================
+------------------------------------------------------------------------------
+// join
+------------------------------------------------------------------------------
+
+// joins two tabels together when they have a common column name
+Perf
+| where TimeGenerated >= ago(30d)
+| take 1000
+| join (Alert) on Computer
+==================================================================================================
+
+// When they don't have a common column you can still join them
+Perf
+| where TimeGenerated >= ago(30d)
+| take 1000
+| join (Alert) on $left.Computer == $right.Computer
+==================================================================================================
+
+// joins can get fairly complex if you need them to. 
+// (Note the default is to do an innerunique join, see notes 
+//  below for more on the kinds of joins.)
+Perf
+| where TimeGenerated >= ago(90d)
+| where CounterName == "% Processor Time"
+| project Computer 
+        , CounterName 
+        , CounterValue 
+        , PerfTime=TimeGenerated 
+| join ( Alert        
+       | where TimeGenerated >= ago(90d)
+       | project Computer 
+               , AlertName 
+               , AlertDescription 
+               , ThresholdOperator 
+               , ThresholdValue 
+               , AlertTime=TimeGenerated 
+       | where AlertName == "High CPU Alert" 
+       )
+    on Computer
+==================================================================================================
+// join supports many types:
+// fullouter, inner, innerunique, leftanti, leftantisemi,
+// leftouter, leftsemi, rightanti, rightantisemi, rightouter, rightsemi
+// The default is an innerunique join
+// Use the kind hint to indicate what type of join to use
+Perf
+| where CounterName == "% Processor Time"
+| project Computer 
+        , CounterName 
+        , CounterValue 
+        , PerfTime=TimeGenerated 
+| join kind=fullouter 
+       ( Alert        
+       | project Computer 
+               , AlertName 
+               , AlertDescription 
+               , ThresholdOperator 
+               , ThresholdValue 
+               , AlertTime=TimeGenerated 
+       | where AlertName == "High CPU Alert" 
+       )
+    on Computer 
+==================================================================================================
+// join kind quick reference
+==================================================================================================
+// innerunique
+//   Only one row from the left is matched for each value of the on key. 
+//   Output contains a match for each row on the right with a row on the left
+//   NOTE: This is the default. If you are coming from a SQL background, 
+//   you might expect the behavior to be inner, so be careful to look over
+//   your results. If you wanted an inner joing you will need to
+//   explictly specify kind=inner when you execute the query!
+==================================================================================================
+// inner
+//   Output has one row for every combination of left and right
+==================================================================================================
+// leftouter
+//   In addition to every match, there's a row for every row on the left even if there's no match on the right
+==================================================================================================
+// rightouter / fullouter
+//   Same as left outer, but either includes all right rows, or all rows, regardless of matches.
+==================================================================================================
+// leftanti / rightanti
+//   The reverse of outer joins, only returns rows who do NOT have a match on the right (or left depending on which was used)
+==================================================================================================
+// leftsemi / rightsemi
+//   Returns rows who have a match on both sides, but only includes the columns from the left side (or right if rightsemi was used)
+==================================================================================================
+// In this example, we'll use our friend the let statement to create two datasets. The first will be a list of computers, with their Percent CPU averaged by the hour of the day. In the second dataset, we'll do the same thing except we'll average the available hard disk space. The join will allow us to connect these datasets by the common
+// columns of time and computer, displaying the two metrics we are interested in. 
+let startTime = ago(1d);
+let endTime = now();
+let ProcData = (
+    Perf 
+    | where TimeGenerated between (startTime .. endTime)
+    | where CounterName == "% Processor Time"
+    | where ObjectName == "Processor"
+    | where InstanceName == "_Total"
+    | summarize PctCpuTime = avg(CounterValue) 
+            by Computer, bin(TimeGenerated, 1h)
+);
+let MemData = (
+    Perf 
+    | where TimeGenerated between (startTime .. endTime)
+    | where CounterName == "Available MBytes"
+    | summarize AvailableMB = avg(CounterValue) 
+            by Computer, bin(TimeGenerated, 1h)
+);
+ProcData
+| join kind= inner (
+   MemData 
+) on Computer, TimeGenerated
+| project TimeGenerated, Computer, PctCpuTime, AvailableMB
+| sort by TimeGenerated desc, Computer asc
+==================================================================================================
+------------------------------------------------------------------------------
+// union
+------------------------------------------------------------------------------
+// Join vs Union
+
+// Join A & B
+// Row: A.Col1 A.Col2 A.Col3 B.Col1 B.Col2 B.Col3
+
+// Union A & B
+// Row A.Col1 A.Col2 A.Col3 A.Col4  <empty>
+// Row B.Col1 B.Col2 B.Col3 <empty> B.Col5
+==================================================================================================
+// Creates an output dataset that is the combination of two tables
+UpdateSummary
+| union Update
+==================================================================================================
+// An optional parameter lets you add a column (here it was named SourceTable)
+// to indicate which table the data came from.
+UpdateSummary
+| union withsource="SourceTable" Update
+==================================================================================================
+// Here is a version where we project specific columns. To do so, we
+// needed to wrap the calls inside ( )
+( UpdateSummary
+| project Computer
+        , ComputerEnvironment
+        , ManagementGroupName
+        , OsVersion
+        , Resource
+        , ResourceGroup
+        , SourceSystem
+        , Type
+        , NETRuntimeVersion
+)
+| union withsource = "SourceTable"
+        ( Update
+        | project Computer
+        , ComputerEnvironment
+        , ManagementGroupName
+        , OSVersion
+        , Resource
+        , ResourceGroup
+        , SourceSystem
+        , Type
+        , Title
+        , UpdateState
+        )
+==================================================================================================
+// You can also call union by using the union keyword first, then
+// listing the tables to union
+union withsource = "SourceTable"
+  ( UpdateSummary
+  | project Computer
+          , ComputerEnvironment
+          , ManagementGroupName
+          , OsVersion
+          , Resource
+          , ResourceGroup
+          , SourceSystem
+          , Type
+          , NETRuntimeVersion
+  )
+, ( Update
+  | project Computer
+          , ComputerEnvironment
+          , ManagementGroupName
+          , OSVersion
+          , Resource
+          , ResourceGroup
+          , SourceSystem
+          , Type
+          , Title
+          , UpdateState
+  )
+==================================================================================================
+// You can union an unlimited number of tables, the more you do though
+// the longer the query takes to run
+union withsource = "SourceTable"
+  ( UpdateSummary
+  | project Computer
+          , ComputerEnvironment
+          , ManagementGroupName
+          , OsVersion
+          , Resource
+          , ResourceGroup
+          , SourceSystem
+          , Type
+          , NETRuntimeVersion
+  )
+, ( Update
+  | project Computer
+          , ComputerEnvironment
+          , ManagementGroupName
+          , OSVersion
+          , Resource
+          , ResourceGroup
+          , SourceSystem
+          , Type
+          , Title
+          , UpdateState
+  )
+, ( Perf
+  | project Computer
+          , CounterName
+          , CounterValue
+  )
+==================================================================================================
+// In practice though, using the let statement generally makes unions
+// much easier to read and work with. Here is the example from 
+// earlier, where we assign the datasets to lets and then do the 
+// union.
+let compName = "ContosoSQLSrv1";
+let UpdtSum = UpdateSummary
+  | where Computer == compName
+  | project Computer
+          , ComputerEnvironment
+          , ManagementGroupName
+          , OsVersion
+          , Resource
+          , ResourceGroup
+          , SourceSystem
+          , Type
+          , NETRuntimeVersion;
+let Updt = Update
+  | where Computer == compName
+  | project Computer
+          , ComputerEnvironment
+          , ManagementGroupName
+          , OSVersion
+          , Resource
+          , ResourceGroup
+          , SourceSystem
+          , Type
+          , Title
+          , UpdateState;
+union withsource = "SourceTable" 
+      UpdtSum
+    , Updt
+==================================================================================================
+// Union has a modifier: kind=inner and kind=outer
+// inner (the default) returns all columns common to all input tables
+// outer returns all columns, setting empty columns to a null
+union kind=outer withsource="SourceTable"
+  UpdateSummary
+, Update
+
+// Union also has an option to use fuzzy resolution. Fuzzy
+// means execution continues even if an underlying table 
+// is no longer present. A warning will appear. 
+// (by default fuzzy is off).
+union withsource="SourceTable" isfuzzy = true
+  UpdateSummary
+, Update
+
+// The table ArcaneCode clearly won't exist, yet the query will still
+// work with fuzzy on. Note that if you call this via an API, you get a
+// warning, but the user interface will not provide any warning!
+union withsource="SourceTable" isfuzzy=true
+  UpdateSummary
+, ArcaneCode
+
+// We can further extend the result of the union by adding columns
+// via extend. Here we combine the union with the function we 
+// created earlier in the let demo.
+let compName = "ContosoSQLSrv1";
+let UpdtSum = UpdateSummary
+  | where Computer == compName
+  | project Computer
+          , ComputerEnvironment
+          , ManagementGroupName
+          , OsVersion
+          , Resource
+          , ResourceGroup
+          , SourceSystem
+          , Type
+          , NETRuntimeVersion
+          , TimeGenerated ;
+let Updt = Update
+  | where Computer == compName
+  | project Computer
+          , ComputerEnvironment
+          , ManagementGroupName
+          , OSVersion
+          , Resource
+          , ResourceGroup
+          , SourceSystem
+          , Type
+          , Title
+          , UpdateState
+          , TimeGenerated ;
+let dateDiffInDays = ( date1:datetime, date2:datetime = datetime(2018-01-01) )
+                     { 
+                       (date1 - date2) / 1d 
+                     };
+union withsource = "SourceTable"
+      UpdtSum
+    , Updt
+| extend DaysSinceStartOfYear=dateDiffInDays(TimeGenerated)
+
+//------------------------------------------------------------------------------
+// datatable
+//------------------------------------------------------------------------------
+
+// Generates a datatable that is defined in the code itself
+datatable (ID:int, TimeGenerated:datetime, YouTubeName:string, YouTubeURL:string)
+[ 1, datetime(2018-04-01), 'AnnaKatMeow', 'https://www.youtube.com/channel/UCmErtDPkJe3cjPPhOw6wPGw'
+, 2, datetime(2018-04-02), 'AdultsOnlyMinecraft', 'https://www.youtube.com/user/AdultsOnlyMinecraft'
+, 3, datetime(2018-04-03), 'Arcane Training and Consulting', 'https://www.youtube.com/channel/UCTH58i-Gl1bZeATOeC4f25g'
+, 4, datetime(2018-04-04), 'Arcane Tube', 'https://www.youtube.com/channel/UCkR0kwYjQ_gngZ8jE3ki7xw'
+, 5, datetime(2018-04-05), 'PowerShell Virtual Chapter', 'https://www.youtube.com/channel/UCFX97evt_7Akx_R9ovfiSwQ'
+]
+
+
+// Can be useful with a let
+let FavoriteYouTubers = datatable ( ID:int
+                                  , TimeGenerated:datetime
+                                  , YouTubeName:string
+                                  , YouTubeURL:string
+                                  )
+[   1
+  , datetime(2018-04-01)
+  , 'AnnaKatMeow'
+  , 'https://www.youtube.com/channel/UCmErtDPkJe3cjPPhOw6wPGw'
+,   2
+  , datetime(2018-04-02)
+  , 'AdultsOnlyMinecraft'
+  , 'https://www.youtube.com/user/AdultsOnlyMinecraft'
+,   3
+  , datetime(2018-04-03)
+  , 'Arcane Training and Consulting'
+  , 'https://www.youtube.com/channel/UCTH58i-Gl1bZeATOeC4f25g'
+,   4
+  , datetime(2018-04-04)
+  , 'Arcane Tube'
+  , 'https://www.youtube.com/channel/UCkR0kwYjQ_gngZ8jE3ki7xw'
+,   5
+  , datetime(2018-04-05)
+  , 'PowerShell Virtual Chapter'
+  , 'https://www.youtube.com/channel/UCFX97evt_7Akx_R9ovfiSwQ'
+];
+FavoriteYouTubers 
+| project YouTubeName
+        , YouTubeURL
+
+
+// A more pratical example
+let computers = datatable ( ComputerName:string, FriendlyName:string )
+[
+  "ContosoSQLSrv1", "Contoso SQL Server One"
+, "ContosoWeb", "Contoso Web Server"
+, "ContosoWeb0-Linux", "Contoso Linux Web Server"
+, "ContosoWeb1.ContosoRetail.com", "Contoso Retail Website"
+, "ContosoWeb2-Linux", "Contoso Linux Web Server backup"
+];
+let PerfInfo = Perf 
+| where TimeGenerated >= ago(1h)
+| project Computer 
+        , TimeGenerated 
+        , CounterName 
+        , CounterValue ;
+computers 
+| join PerfInfo on $left.ComputerName == $right.Computer
+| project FriendlyName
+        , ComputerName
+        , TimeGenerated
+        , CounterName
+        , CounterValue
+==================================================================================================
+-----------------------------------------------------------------------------
+// prev / next
+------------------------------------------------------------------------------
+// prev gets the value from a column in previous row
+// Must use serialize operator in order to enable prev/next functionality
+let SomeData = datatable ( rowNum:int, rowVal:string )
+[
+  1, "Value 01"
+, 2, "Value 02"
+, 3, "Value 03"
+, 4, "Value 04"
+, 5, "Value 05"
+, 6, "Value 06"
+, 7, "Value 07"
+, 8, "Value 08"
+, 9, "Value 09"
+];
+SomeData 
+| serialize 
+| extend prvVal = strcat("Previous Value was ", prev(rowVal))
+==================================================================================================
+// next
+let SomeData = datatable ( rowNum:int, rowVal:string )
+[
+  1, "Value 01"
+, 2, "Value 02"
+, 3, "Value 03"
+, 4, "Value 04"
+, 5, "Value 05"
+, 6, "Value 06"
+, 7, "Value 07"
+, 8, "Value 08"
+, 9, "Value 09"
+];
+SomeData 
+| serialize 
+| extend nxtVal = strcat("Next Value is ", next(rowVal))
+==================================================================================================
+
+// You can use an offset to go back or forward more than 1
+let SomeData = datatable ( rowNum:int, rowVal:string )
+[
+  1, "Value 01"
+, 2, "Value 02"
+, 3, "Value 03"
+, 4, "Value 04"
+, 5, "Value 05"
+, 6, "Value 06"
+, 7, "Value 07"
+, 8, "Value 08"
+, 9, "Value 09"
+];
+SomeData 
+| serialize 
+| extend prvVal2 = prev(rowVal, 2)
+| extend prvVal = strcat("Previous Value back 2 was ", prvVal2)
+
+
+// If you use the offset, you can add a third parameter to use as 
+// a default when there is no prev or next row
+let SomeData = datatable ( rowNum:int, rowVal:string )
+[
+  1, "Value 01"
+, 2, "Value 02"
+, 3, "Value 03"
+, 4, "Value 04"
+, 5, "Value 05"
+, 6, "Value 06"
+, 7, "Value 07"
+, 8, "Value 08"
+, 9, "Value 09"
+];
+SomeData 
+| serialize 
+| extend prvVal = prev(rowVal, 1, "not valid for this row")
+| extend prvVal = strcat("Previous Value was ", prvVal)
+
+
+// iif is a useful function for testing and setting defaults on the
+// boundaries. Also note you can use prev/next in calculations, as 
+// well as mix them
+let SomeData = datatable ( rowNum:int, rowVal:string )
+[
+  1, "Value 01"
+, 2, "Value 02"
+, 3, "Value 03"
+, 4, "Value 04"
+, 5, "Value 05"
+, 6, "Value 06"
+, 7, "Value 07"
+, 8, "Value 08"
+, 9, "Value 09"
+];
+SomeData 
+| serialize 
+| extend prvVal = prev(rowVal)
+       , nxtNum = next(rowNum, 1, 0)     // back one row, 0 is default
+| extend displayPrvVal = iif( isempty(prvVal)==true
+                            , "There was no prevoius value."
+                            , strcat("The previous Value was ", prvVal)
+                            )
+       , displayNxtNum = nxtNum * 100
+
+
+// So far we used prev/next on datasets that were hard coded, and thus the
+// order is predictable. This makes the examples easy to understand. However,
+// when working with real data it will be important to sort your data in
+// order for prev/next to work correctly. 
+
+// By now the first part of the query should be obvious. For the computer 
+// ContosoWeb we get the processor times for the last 24 hours. 
+// They are then averaged by the hour and put into the PctCpuTime variable.
+
+// Next is the important step, sorting the results by the time of day.
+
+// After this we then get the current percent cpu time, then use the
+// prev function to get the previous cpu time, using 0 as a default 
+// (prev(PctCpuTime, 1, 0) ). The cpu time from two rows back is obtained,
+// again using 0 as a default ( prev(PctCpuTime, 2, 0) )
+
+// Finally the three are added, then divided by 3 to give a moving average,
+// which is then added to the output in the movAvg variable.
+
+let startTime = ago(1d);
+let endTime = now();
+Perf 
+| where TimeGenerated between (startTime .. endTime)
+| where Computer == "ContosoWeb"
+| where CounterName == "% Processor Time"
+| where ObjectName == "Processor"
+| where InstanceName == "_Total"
+| summarize PctCpuTime = avg(CounterValue) by bin(TimeGenerated, 1h)
+| sort by TimeGenerated asc //serialize is implied in any sort operation
+| extend movAvg= (PctCpuTime + prev(PctCpuTime, 1, 0) + prev(PctCpuTime, 2, 0))/3.0
+
+
+// A picture is worth a thousand words, so KQL has an output option to
+// render a graph over time. IT looks for a datetime variable, then 
+// plots all numeric variables across the chart
+let startTime = ago(1d);
+let endTime = now();
+Perf 
+| where TimeGenerated between (startTime .. endTime)
+| where Computer == "ContosoWeb"
+| where CounterName == "% Processor Time"
+| where ObjectName == "Processor"
+| where InstanceName == "_Total"
+| summarize PctCpuTime = avg(CounterValue) by bin(TimeGenerated, 1h)
+| sort by TimeGenerated asc //serialize is implied in any sort operation
+| extend movAvg= (PctCpuTime + prev(PctCpuTime, 1, 0) + prev(PctCpuTime, 2, 0))/3.0
+| render timechart 
+==================================================================================================
+-----------------------------------------------------------------------------
+// toscalar
+------------------------------------------------------------------------------
+
+// scalar values are ones that occupy a single cell in a table. This includes not just numbers and strings, but also includes things like arrays and objects
+
+// Simple example, calculate a constant value 
+// (speed of light in miles per second)
+let speedOfLight = toscalar(186 * 1000);
+print speedOfLight
+==================================================================================================
+// Get back a set of computers with low disk
+Perf
+| where CounterName == "Free Megabytes"
+    and CounterValue < 1000
+    and TimeGenerated >= ago(1h)
+| summarize makeset(Computer)
+==================================================================================================
+// A more common example is to get an array out of a query. Here, we first get a list of all computers that had a low amount of disk space reported and store it in a scalar value (an array).
+// We then use that to limit the results of the next query, where we are asking to see all counters for those computers that reported a low disk space condition. 
+let myComputerList = toscalar( Perf
+                             | where CounterName == "Free Megabytes"
+                                 and CounterValue < 1000
+                                 and TimeGenerated >= ago(1h)
+                             | summarize makeset(Computer)
+                             );
+Perf
+| where TimeGenerated >= ago(1h)
+    and Computer in (myComputerList)
+    and CounterName == "Free Megabytes"
+| project Computer 
+        , TimeGenerated 
+        , CounterName 
+        , CounterValue 
+| sort by Computer asc  
+        , TimeGenerated desc
+        , CounterName asc
+==================================================================================================
+// It should be stressed toscalar returns a single value, not an entire dataset.
+==================================================================================================
+------------------------------------------------------------------------------
+// row_cumsum
+------------------------------------------------------------------------------
+
+// row_cumsum provides a way to do a cumulative summary for values in a data set. In this simple example, for each row it adds a column (cumulativeSum) adding up the value in column a up to that row
+datatable (a:long) 
+[
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+]
+| serialize cumulativeSum=row_cumsum(a)
+==================================================================================================
+// In this example, we will add up the amount of bytes received over the
+// last few hours
+let fromTime = ago(3h);
+let thruTime = now();
+Perf
+| where TimeGenerated between (fromTime .. thruTime)
+| where ObjectName == "Network Adapter"
+| where CounterName == "Bytes Received/sec" 
+| summarize BytesRecPerHour = sum(CounterValue) 
+         by Computer, bin(TimeGenerated, 1h)
+| sort by Computer asc, TimeGenerated asc
+| serialize BytesRecToCurrentHour = row_cumsum(BytesRecPerHour)
+
+==================================================================================================
+// row_cumsum has a second parameter, reset. Reset takes a true/false value that tells it whether to reset the value being summed to 0. Here we create a variable, temp. Then use it as a row number for each computer, resetting the value when the computer name changes (also providing another useful example for the use of prev)
+let fromTime = ago(3h);
+let thruTime = now();
+Perf 
+| where TimeGenerated between (fromTime .. thruTime)
+| where CounterName == "% Processor Time"
+| where ObjectName == "Processor"
+| where InstanceName == "_Total"
+| summarize PctCpuTime = avg(CounterValue) 
+         by Computer, bin(TimeGenerated, 1h)
+| sort by Computer asc, TimeGenerated asc
+| extend temp = 1
+| extend rowNum_partitioned = row_cumsum(temp, Computer != prev(Computer))
+| project-away temp 
+==================================================================================================
+------------------------------------------------------------------------------
+// materialize
+------------------------------------------------------------------------------
+
+// materialze will take the results of a query and cache them in memory. This means the query is only run once, as opposed to multiple times.
+
+// Here, we want to generate a report. For all of the computers that generated an event in the last hour, what percentage of all the errors reported was that computer responsible for, and what percentage of all the warnings reported was that computer responsible for.
+
+// We start by caching all of the events generated in the last hour into the myEvents variable.
+
+// Next, we get a count of all the errors in that cached dataset (errorCount)
+
+// Likewise we get a count of all the warnings in the cached dataset (warningCount)
+
+// Then, for that cached dataset we add a column (eventCount) that contains a count of the number of rows for that EventLevelName
+
+// We next do a pivot. We want our final output to be in the form of Computer ErrorPercent WarningPercent Using a pivot will take what had been rows of computer, event level, and count and comvert the event level counters into columns 
+
+// Next, we calculate the ratio for the warnings by dividing it's eventCount by the total events for that EventLevelName (warningCount).
+
+// The error ratio is calculated in the same manner, within the same extend 
+
+// We have to convert the Warning and Error counters to a double, otherwise (like with most languages) when KQL does the division it will try to come up with an intenger result, since these values were integers. If that were to happen the raw ratios would wind up being a 0 or a 1, not something we want. It is next multiplied by 100 to convert to a percent.
+
+// For display purposes, we only want two decimal places, so the entire calculation is wrapped in a round function to limit it to just the desired two decimal places. 
+
+// Next, we will sort the data, first by the highest percent of errors then by the computer name. We will be using the raw numeric value (errorRatioRaw) to do the sort to avoid any issues with string sorting. We want the computer with the highest % of errors to be at the top of the list. For when multiple machines have the same % of errors, we then subsort by % of warnings, then finally computer name. 
+
+// After we sort, we want to display it with the % symbol, so use strcat to convert the calculated values to a string and add the % on the end. 
+
+// After that we can project just the columns we want displayed, removing the raw, intermediate calculated values 
+
+let myEvents = materialize( Event 
+                          | where TimeGenerated >= ago(1h)
+                          | project Source
+                                  , Computer
+                                  , TimeGenerated
+                                  , EventLevelName
+                          );
+let errorCount = toscalar( myEvents 
+                         | where EventLevelName == "Error" 
+                         | count  
+                         );
+let warningCount = toscalar( myEvents 
+                           | where EventLevelName == "Warning" 
+                           | count  
+                           );
+myEvents 
+| summarize eventCount = count() by Computer, EventLevelName
+| evaluate pivot(EventLevelName, sum(eventCount))
+| extend warningRatioRaw = round(  (todouble(Warning) / warningCount)  * 100
+                                , 2
+                                )
+       , errorRatioRaw = round( (todouble(Error) / errorCount)  * 100
+                              , 2
+                              )
+| sort by errorRatioRaw desc 
+        , warningRatioRaw
+        , Computer
+| extend WarningPercentage = strcat(warningRatioRaw, "%")
+       , ErrorPercentage = strcat(errorRatioRaw, "%")
+| project Computer 
+        , ErrorPercentage 
+        , WarningPercentage 
+
+==================================================================================================
+// In addition to caching, which adds speed, materialize had another benefit, in that it removes math errors due to additional rows being added during the query execution.
+
+// If, for example, we calculate the errorCount, then between that calculation and the reading of rows a lot of new errors were reported, the summarize might now have more or less rows then were present when the errorCount was calculated. This could produce subtle, incorrect results.
+==================================================================================================
+// Module 6 - Time Series
+==================================================================================================
+------------------------------------------------------------------------------
+// range
+-----------------------------------------------------------------------------
+// Produces a table in steps using the boundaries indicated, incrementing by 
+// the value in the step parameter
+range myNumbers from 1 to 8 step 1
+
+range myNumbers from 1 to 8 step 2
+
+// Works great with dates
+range LastWeek from ago(7d) to now() step 1d
+
+range LastHours from ago(24h) to now() step 1h
+==================================================================================================
+// Use with start of day to get the beginning of the day
+range LastWeek from ago(7d) to now() step 1d
+| project BeginningOfDay = startofday(LastWeek)
+==================================================================================================
+// Here, we'll create a table from a range, one for each day, for the start of the day. Then we'll join that to a query getting the number of events bucketed by date
+// We'll then add a column that nicely formats the date It then sorts the results and displays them
+range LastWeek from ago(7d) to now() step 1d
+| project TimeGenerated = startofday(LastWeek)
+| join kind=fullouter ( Event 
+                      | where TimeGenerated > ago(7d)
+                      | summarize Count = count() 
+                               by bin(TimeGenerated, 1d)
+) on TimeGenerated
+| extend TimeDisplay = format_datetime(TimeGenerated, "yyyy-MM-dd") 
+| sort by TimeGenerated desc
+| project TimeDisplay 
+        , Count 
+==================================================================================================
+------------------------------------------------------------------------------
+// make-series
+------------------------------------------------------------------------------
+
+// Takes a series of values and converts them to an array of values within a
+// column
+Perf
+| where TimeGenerated > ago(3d)
+| where CounterName  == "Available MBytes"
+| make-series avg(CounterValue) default=0 
+           on TimeGenerated in range(ago(3d), now(), 1h) by Computer 
+
+==================================================================================================
+// We can use make series to generate an array of averages and times, then
+// use mvexpand to pivot them back to rows
+let startTime=ago(2hour);
+let endTime=now();
+Perf 
+| where TimeGenerated between (startTime .. endTime)
+| where CounterName == "% Processor Time" 
+    and Computer == "ContosoWeb1.ContosoRetail.com" 
+    and ObjectName == "Process" 
+    and InstanceName !in ("_Total", "Idle") 
+| make-series avg(CounterValue) default=0 
+           on TimeGenerated in range(startTime, endTime, 10m) 
+           by InstanceName
+| mvexpand TimeGenerated to typeof(datetime)
+         , avg_CounterValue to typeof(double) 
+           limit 100000
+==================================================================================================
+// This query can then be used to render a chart over time
+let startTime=ago(2hour);
+let endTime=now();
+Perf 
+| where TimeGenerated between (startTime .. endTime)
+| where CounterName == "% Processor Time" 
+    and Computer == "ContosoWeb1.ContosoRetail.com" 
+    and ObjectName == "Process" 
+    and InstanceName !in ("_Total", "Idle") 
+| make-series avg(CounterValue) default=0 
+           on TimeGenerated in range(startTime, endTime, 10m) 
+           by InstanceName
+| mvexpand TimeGenerated to typeof(datetime)
+         , avg_CounterValue to typeof(double) 
+           limit 100000
+| render timechart
+==================================================================================================
+// Even better, render has the ability to handle expanding on it's own,
+// so the mvexpand step can be eliminated
+let startTime=ago(2hour);
+let endTime=now();
+Perf 
+| where TimeGenerated between (startTime .. endTime)
+| where CounterName == "% Processor Time" 
+    and Computer == "ContosoWeb1.ContosoRetail.com" 
+    and ObjectName == "Process" 
+    and InstanceName !in ("_Total", "Idle") 
+| make-series avg(CounterValue) default=0 
+           on TimeGenerated in range(startTime, endTime, 10m) 
+           by InstanceName
+| render timechart
+==================================================================================================
+// Most often used to get get statistics on that data, which we'll see next!
+==================================================================================================
+------------------------------------------------------------------------------
+// series_stats
+------------------------------------------------------------------------------
+
+// Takes a dynamic series of values and produces a list of all the statistical
+// functions for them in one output
+let x=dynamic([23,46,23,87,4,8,3,75,2,56,13,75,32,16,29]);
+print series_stats(x)
+==================================================================================================
+// A variant is series_stats_dynamic, which returns a dynamic column with the
+// data in json format
+let x=dynamic([23,46,23,87,4,8,3,75,2,56,13,75,32,16,29]);
+print series_stats_dynamic(x)
+==================================================================================================
+
+// series_stats_dynamic is used in conjuction with make-series to
+// return statistics for a value
+Perf
+| where TimeGenerated > ago(1d)
+| where CounterName == "Available MBytes"
+| make-series avg(CounterValue) default=0 
+           on TimeGenerated in range(ago(1d), now(), 1h) 
+           by Computer
+| extend mySeriesStats = series_stats_dynamic(avg_CounterValue) 
+==================================================================================================
+// Make it easier to read by projecting the individual values from the
+// dyamic value
+Perf
+| where TimeGenerated > ago(1d)
+| where CounterName == "Available MBytes"
+| make-series avg(CounterValue) default=0 
+           on TimeGenerated in range(ago(1d), now(), 1h) 
+           by Computer
+| extend mySeriesStats = series_stats_dynamic(avg_CounterValue) 
+| project Computer
+        , mySeriesStats.min
+        , mySeriesStats.min_idx
+        , mySeriesStats.max
+        , mySeriesStats.max_idx
+        , mySeriesStats.avg
+        , mySeriesStats.stdev
+        , mySeriesStats.variance
+==================================================================================================
+------------------------------------------------------------------------------
+// series_outliers
+------------------------------------------------------------------------------
+
+// For each element in the array that is passed in, series outliers generates a corresponding value that indicates the possiblity of an anomoly. A value greater than 1.5, or less than -1.5, indicates the rise or decline of an anomoly. 
+
+==================================================================================================
+// Here, we'll use series-outliers to get accounts that suddenly log on to more distinct machines than usual and perform admin detection
+
+// The ultimate query has a lot of parts, so lets break it into small parts first. This is a common development scenerio, create the parts of the query first so you can test those components then combine them together
+
+// Start by getting base data. For user login events, get the number of users that logged in (dcount will distinctly count the users)
+let fromDate = ago(5d);
+let thruDate = now();
+let baseData = materialize(
+    SecurityEvent
+      // 4624 - An account was successfully logged on.
+    | where EventID == 4624  
+      // Only for user logins
+    | where AccountType == "User"
+      // Get a list of distinct logins by account and put them
+      // in an array variable
+    | make-series dcount(Computer) default=0 
+               on TimeGenerated in range(fromDate, thruDate, 1d) 
+               by Account 
+);
+baseData
+
+// Now we'll get a list of outliers - accounts with logins that exceeded
+// the normal login rates for that account
+let fromDate = ago(5d);
+let thruDate = now();
+let baseData = materialize(
+    SecurityEvent
+    | where EventID == 4624  
+    | where AccountType == "User"
+    | make-series dcount(Computer) default=0 
+               on TimeGenerated in range(fromDate, thruDate, 1d) 
+               by Account 
+);
+// Get the top 25 ranked by outlier
+let AnomAccounts = (
+    baseData
+      // Calculate the outliers into an array
+    | extend outliers = series_outliers(dcount_Computer) 
+      // Now convert the array into rows
+    | mvexpand dcount_Computer, TimeGenerated, outliers to typeof(double)
+      // Get just the top 25 ranked by outlier
+    | top 25 by outliers desc
+    // We will add this later to just get the list of accounts, for now
+    // we comment it out so we can verify the full results 
+//    | project Account  
+);
+AnomAccounts
+==================================================================================================
+// Next get a list of the average number of logins for the user account
+let fromDate = ago(5d);
+let thruDate = now();
+let baseData = materialize(
+    SecurityEvent
+    | where EventID == 4624  
+    | where AccountType == "User"
+    | make-series dcount(Computer) default=0 
+               on TimeGenerated in range(fromDate, thruDate, 1d) 
+               by Account 
+);
+// Calculate avg number of logins
+let AccountAvg = (
+    baseData
+      // For each row, calculate all of the stats using series_stats_dynamic
+      // then extract just the avg from that list. Convert that to a 
+      // double then add it as a new column, avg
+    | extend avg = todouble(series_stats_dynamic(dcount_Computer).avg ) 
+);
+AccountAvg
+
+
+// Now get the domain controllers
+let myDCs = toscalar(
+    ADAssessmentRecommendation
+    | summarize makeset(Computer)
+);
+print myDCs
+
+
+// For the computer name just got, get the domain accounts
+let myDCs = toscalar(
+    ADAssessmentRecommendation
+    | summarize makeset(Computer)
+);
+let myDAs = toscalar(
+    SecurityEvent
+    | where EventID in (4672, 576)
+    | where Computer in (myDCs)
+    | summarize makeset(Account)
+);
+print myDAs
+
+
+// Now put it all together
+let fromDate = ago(5d);
+let thruDate = now();
+let baseData = materialize(
+    SecurityEvent
+    | where EventID == 4624  // 4624 - An account was successfully logged on.
+    | where AccountType == "User"
+    | make-series dcount(Computer) default=0 
+               on TimeGenerated in range(fromDate, thruDate, 1d) 
+               by Account 
+);
+let AnomAccounts = (
+    baseData
+    | extend outliers = series_outliers(dcount_Computer) 
+    | mvexpand dcount_Computer, TimeGenerated, outliers to typeof(double)
+    | top 25 by outliers desc
+    | project Account 
+);
+let AccountAvg = (
+    baseData
+    | extend avg = todouble(series_stats_dynamic(dcount_Computer).avg ) 
+);
+let myDCs = toscalar(
+    ADAssessmentRecommendation
+    | summarize makeset(Computer)
+);
+let myDAs = toscalar(
+    SecurityEvent
+    | where EventID in (4672, 576)
+    | where Computer in (myDCs)
+    | summarize makeset(Account)
+);
+SecurityEvent
+  // 4624 - An account was successfully logged on.
+| where EventID  == 4624
+  // Where the account was in the list of anomolies
+| where Account in (AnomAccounts)
+  // Add a column to let us know if the accout is an admin
+| extend IsAdmin = iff(Account in (myDAs), "yes", "no")
+  // Get a distinct count of the computers by the account and
+  // whether the user was an admin
+| summarize CompCount = dcount(Computer) by Account, IsAdmin
+  // Now join this to the table of averages for that account
+| join kind=leftouter (
+   AccountAvg 
+) on Account
+  // Remove the columns we no longer need
+| project-away Account1, dcount_Computer, TimeGenerated        
+
+// Now we have a list of accounts, whether that account is an admin,
+// how many machines did they log into, and what is the average 
+// number of machines they usually login to
+==================================================================================================
+-----------------------------------------------------------------------------
+// series_fir
+-----------------------------------------------------------------------------
+
+// FIR Is Finiite Impulse Repsonse time. It is typically used in digital signal processing, such as that used in radio (especially amateur radio). 
+
+// The finite indicates the array of values, if continued, would eventually dwindle down to a zero value.
+
+// FIR analysis is a specialized discipline, however we can use FIR to assist with other more common processing needs. 
+
+// Show a moving average of last 5 values
+range t from bin(now(), 1h)-23h to bin(now(), 1h) step 1h
+| summarize t=makelist(t)
+| project val=dynamic([10,20,30,40,5,6,7,8,0,10,20,40,100,40,20,10,20,9,7,20,80,10,5,1]), t
+| extend 5h_MovingAvg=series_fir(val, dynamic([1,1,1,1,1])),
+         5h_MovingAvg_centered=series_fir(val, dynamic([1,1,1,1,1]), true, true)
+| mvexpand val, t, 5h_MovingAvg, 5h_MovingAvg_centered         
+
+// Show difference between current value and previous value
+range t from bin(now(), 1h)-11h to bin(now(), 1h) step 1h
+| summarize t=makelist(t)
+| project t,value=dynamic([1,2,4,6,2,2,2,2,3,3,3,3])
+| extend diff=series_fir(value, dynamic([1,-1]), false, false)
+| mvexpand t, value, diff
+
+==================================================================================================
+// Now to do something more useful. Get a list of High CPU Alerts for a computer, then for each alert calculate the time since the previous alert. Zero out the first row since that data would be misleading.
+let filterOutBigValues = (val:real)
+{
+  iif( val > 10000000, 0.0, val)
+};
+let convertToMinutes = (val:real)
+{
+  // 1 sec = 10000000 ns
+  round( (val / 10000000) / 60.0, 2)   
+};
+let convertMinToHours = (val:real)
+{
+  round(val / 60.0, 2)
+};
+Alert
+| where TimeGenerated >= ago(90d)
+| where AlertName == "High CPU Alert"
+| where Computer == "ContosoAzADDS1.ContosoRetail.com"
+| project Computer 
+        , TimeGenerated 
+| order by TimeGenerated asc
+| summarize tg=makelist(tolong(TimeGenerated)) by Computer
+| extend diff=series_fir(tg,  dynamic([1, -1]), false, false)
+| mvexpand tg, diff
+| extend TimeGenerated = todatetime(tg) 
+| extend diffInMinutes = convertToMinutes(diff)
+| extend diffInHours = convertMinToHours(diffInMinutes)
+| extend DifferenceInMinutes = filterOutBigValues(diffInMinutes)
+       , DifferenceInHours =  filterOutBigValues(diffInHours)  
+| project-away tg, diffInMinutes, diffInHours 
+==================================================================================================
+------------------------------------------------------------------------------
+// series_iir
+-----------------------------------------------------------------------------
+
+// Similar to FIR, IIR is Infinite Impulse Response. Like FIR, it is most commonly used in signal processing. The major difference between FIR and IIR is that the range of values is assumed to go on infinately, rather than than FIRs assumption it will be declining to zero 
+==================================================================================================
+// Like FIR, IIR can be used for similar functions. 
+
+// Use IIR to calculate cumulative values
+range t from bin(now(), 1h)-23h to bin(now(), 1h) step 1h
+| summarize t=makelist(t)
+| project val=dynamic([10,20,30,40,5,6,7,8,0,10,20,40,100,40,20,10,20,9,7,20,80,10,5,1]), t
+| extend CumulativeTotal=series_iir(val, dynamic([1]), dynamic([1,-1])    )
+| mvexpand val, t, CumulativeTotal         
+==================================================================================================
+
+// Here, we will determine the number of alerts for a computer on a given day, then accumulate them using series_iir
+Alert
+| where TimeGenerated >= ago(90d)
+| where AlertName == "High CPU Alert"
+| where Computer == "ContosoAzADDS1.ContosoRetail.com"
+| summarize AlertCount=count() by bin(TimeGenerated, 1d) 
+| order by TimeGenerated asc
+| summarize ac=makelist(AlertCount), tg=makelist(TimeGenerated)
+| extend CumulativeAlertCount = series_iir(ac,  dynamic([1]),  dynamic([1, -1]) )
+| mvexpand tg, ac, CumulativeAlertCount
+| extend AlertDate = format_datetime(todatetime(tg), 'yyyy-MM-dd') 
+| project AlertDate, DailyAlertCount = ac, CumulativeAlertCount 
+==================================================================================================
+
+// With a slight variation to our query, we can now render this as a chart, making it much easier to spot any spikes in alert counts
+Alert
+| where TimeGenerated >= ago(90d)
+| where AlertName == "High CPU Alert"
+| where Computer == "ContosoAzADDS1.ContosoRetail.com"
+| summarize AlertCount=count() by bin(TimeGenerated, 1d) 
+| order by TimeGenerated asc
+| summarize ac=makelist(AlertCount), tg=makelist(TimeGenerated)
+| extend CumulativeAlertCount = series_iir(ac,  dynamic([1]),  dynamic([1, -1]) )
+| mvexpand tg, ac, CumulativeAlertCount
+| extend AlertDate = todatetime(tg)
+       , CumulativeAlertCount = toint(CumulativeAlertCount) 
+| project AlertDate, CumulativeAlertCount
+| render timechart 
+==================================================================================================
+------------------------------------------------------------------------------
+// series_fit_line
+------------------------------------------------------------------------------
+
+// series_fit_line performs a linear regression on a series. It returns
+// multiple values:
+// RSquare: Standard measure of the fit of quality, in a range of 0 to 1. 
+//          the closer to 1, the better the fit.
+// Slope:   Slope of the approximated line
+// Variance: The variance of the input data
+// RVariance: Residual variance (the variance between the input data)
+// Interception: Interception of the approcimated line
+// Line_Fit: Numericial array holding the values of the best fit line.
+//           Typically used for charting.
+range x from 1 to 1 step 1
+| project x = range(bin(now(), 1h)-11h, bin(now(), 1h), 1h)
+        , y = dynamic([2,5,6,8,11,15,17,18,25,26,30,30])
+| extend (RSquare,Slope,Variance,RVariance,Interception,LineFit) = series_fit_line(y)
+
+// Render this as charted data
+// y represents the actual value
+// LineFit represents the best fit "predicted" value
+range x from 1 to 1 step 1
+| project x=range(bin(now(), 1h)-11h, bin(now(), 1h), 1h)
+        , y=dynamic([2,5,6,8,11,15,17,18,25,26,30,30])
+| extend (RSquare,Slope,Variance,RVariance,Interception,LineFit) = series_fit_line(y)
+| render timechart
+
+==================================================================================================
+// Let's render a chart based on the total memory (in kb) used per hour
+Perf
+| where TimeGenerated > ago(1d)
+| where CounterName == "Used Memory kBytes" 
+| where CounterValue > 0
+| make-series TotalMemoryUsed=sum(CounterValue) default=0 
+           on TimeGenerated 
+           in range(ago(1d), now(), 1h) 
+           by Computer
+| extend (RSquare,Slope,Variance,RVariance,Interception,LineFit)=series_fit_line(TotalMemoryUsed)
+| render timechart 
+
+==================================================================================================
+-----------------------------------------------------------------------------
+// series_fit_2lines
+------------------------------------------------------------------------------
+
+// series_fit_2lines takes the input data and splits the collection (it uses the terms 'right side' and 'left side' to differentiate). It then performs an anaylsis on each part of the data. The best split is the one with the maximized RSquare. It will return the best values, but you can also return the right and left side values if you want
+==================================================================================================
+// Return all values
+range x from 1 to 1 step 1
+| project x = range(bin(now(), 1h)-11h, bin(now(), 1h), 1h)
+        , y = dynamic([2,5,6,8,11,15,17,18,25,26,30,30])
+| extend ( RSquare
+         , SplitIdx
+         , Variance
+         , ResidualVariance
+         , LineFit
+         , right_rsquare
+         , right_slope
+         , right_interception
+         , right_variance
+         , right_rvariance
+         , left_rsquare
+         , left_slope
+         , left_variance
+         , left_rvarience
+         ) = series_fit_2lines(y)
+
+// Return only the key values
+range x from 1 to 1 step 1
+| project x = range(bin(now(), 1h)-11h, bin(now(), 1h), 1h)
+        , y = dynamic([2,5,6,8,11,15,17,18,25,26,30,30])
+| extend ( RSquare
+         , SplitIdx
+         , Variance
+         , ResidualVariance
+         , LineFit
+         ) = series_fit_2lines(y)
+==================================================================================================
+// Let's render a chart based on the total memory (in kb) used per hour
+Perf
+| where TimeGenerated > ago(1d)
+| where CounterName == "Used Memory kBytes" 
+| where CounterValue > 0
+| make-series TotalMemoryUsed=sum(CounterValue) default=0 
+           on TimeGenerated 
+           in range(ago(1d), now(), 1h) 
+           by Computer
+| extend (RSquare,SplitIdx,Variance,RVariance,LineFit)=series_fit_2lines(TotalMemoryUsed)
+| render timechart
+==================================================================================================
+------------------------------------------------------------------------------
+// Kusto Query Language (KQL) From Scratch
+// Module 7 - Machine Learning
+==================================================================================================
+------------------------------------------------------------------------------
+// basket
+------------------------------------------------------------------------------
+
+// basket analysis uses a method called the Apiori algorithm to attempt to uncover frequency patterns in the data. The classic example is the grocery basket, wanting to find the most popular combination of grocery items
+
+// Apiori works by first examining the frequency of each distinct value in the list, then if an item is not frequent other combinations with that item wouldn't be considered frequent either and thus are elimiated from consideration. Once it has a list of attributes that are frequent, it then analyzes the combination of attributes for frequency. 
+
+// Here, we will do an analysis to see which combination of computer plus performance counters appears the most frequently
+Perf
+| where TimeGenerated >= ago(10d)
+| project Computer
+        , ObjectName 
+        , CounterName
+        , InstanceName  
+| evaluate basket()
+
+==================================================================================================
+// basket has several optional parameters, the first of which is threshold.The threshold determines the minimum frequency a combination must occur in order to be considered for inclusion. KQL uses a ratio of 0 to 1, 
+// with the default being 0.05
+let threshold = 0.03;
+Perf
+| where TimeGenerated >= ago(10d)
+| project Computer
+        , ObjectName 
+        , CounterName
+        , InstanceName  
+| evaluate basket(threshold)
+
+// Note there are some other parameters as well, but as these are not frequently used you can refer to online help for more info.
+==================================================================================================
+------------------------------------------------------------------------------
+// autocluster
+------------------------------------------------------------------------------
+
+// autocluster looks for common patterns of discrete attributes in the data and reduces it to just a small number of patterns. 
+As an example, look at these four patterns:
+//   A: Users browsing arcanecode.com using the Edge browser
+//   B: Users browsing arcanecode.com using the Edge browser on Windows 10
+//   C: Users browsing arcanecode.com using the Edge browser on Windows 7
+//   D: Users browsing pluralsight.com using Edge
+
+// Autocluster would find the pattern for A, B, and C similar enough and 
+// combine them into a single pattern, yet leaving D as a separate 
+// distinct pattern. 
+==================================================================================================
+Event
+| where TimeGenerated >= ago(10d)
+| project Source 
+        , EventLog 
+        , Computer 
+        , EventLevelName 
+        , RenderedDescription 
+| evaluate autocluster()        
+
+==================================================================================================
+// Like bucket, autocluster has a weight parameter called SizeWeight. It determines the balance between high coverage (less rows but more focused results) and informative (many shared values) Value is in range of 0-1 with 0.5 being default
+let sizeWeight = 0.3;
+Event
+| where TimeGenerated >= ago(10d)
+| project Source 
+        , EventLog 
+        , Computer 
+        , EventLevelName 
+        , RenderedDescription 
+| evaluate autocluster(sizeWeight)
+
+==================================================================================================
+// Again, just like bucket, autocluster has other parameters that are not frequently used, so review the online help for more information.
+
+==================================================================================================
+------------------------------------------------------------------------------
+// diffpatterns
+------------------------------------------------------------------------------
+
+// diffpatterns takes a dataset and splits it into two halves based on two value in a specied column. It then returns the most common set of attributes, showing how many were associated with the first value (A) and how many for the second value (B).
+
+// Here we're going to take a set of attributes from the Event table, and split the data based on the EventLevelName column. Side A will be  Error events, side B Warning events.
+
+Event
+| where TimeGenerated >= ago(5d)
+| project Source, Computer, EventID, EventCategory, EventLevelName
+| evaluate diffpatterns(EventLevelName, 'Error', 'Warning')
+==================================================================================================
+
+// Add some column renaming
+Event
+| where TimeGenerated >= ago(5d)
+| project Source, Computer, EventID, EventCategory, EventLevelName
+| evaluate diffpatterns(EventLevelName, 'Error', 'Warning')
+| project-rename ErrorCount = CountA
+               , WarningCount = CountB
+               , ErrorPercent = PercentA
+               , WarningPercent = PercentB
+               , PercentDifference = PercentDiffAB
+
+==================================================================================================
+// As with the other functions in this module, diffpatterns has a variety of optional parameters.
+
+// The first is WeightColumn. This allows you to provide a column that provides extra weight (preference) to some rows, for example you may have data that already has a frequency counter in it. 
+// As this dataset lacks such a column, in the next example we'll use the wildcard of ~ for this value
+
+// The second parameter is Threshold, which operates like the threshold values in the other functions. The range is 0 to 1, with 0.05 being the default value. 
+Event
+| where TimeGenerated >= ago(5d)
+| project Source, Computer, EventID, EventCategory, EventLevelName
+| evaluate diffpatterns(EventLevelName, 'Error', 'Warning', '~', 0.07)
+==================================================================================================
+// see online help for the other lesser used values.
+==================================================================================================
+// autocluster vs diffpatterns
+
+autocluster is useful for trying to find a pattern in your data. For example, using autocluster we might find that in the dataset 80% of users were using Edge to browse arcanecode.com
+
+// Let's say there was an incident during browsing. You could use iif to create a "before incident" and "during/post" incident flag, and use diffpatterns to contrast the data before and during/post incident. From it, you might discover that only users browsing arcanecode.com in Edge on Windows 7 had issues.
+
+-----------------------------------------------------------------------------
+// reduce
+------------------------------------------------------------------------------
+
+// reduce is used to determine patterns in string data. For example, let's say you have ten computers whose names all end in .ContosoRetail.com. Reduce will summarize them into the pattern of *.ContosoRetail.com, give you a  count of the number of occurences for this pattern, then in the Representative column show one exaple of this pattern
+
+Perf
+| where TimeGenerated >= ago(12h)
+| project Computer 
+| reduce by Computer 
+
+==================================================================================================
+// reduce has a threshold value, although it's implemented slightly different from the other functions. It should be in the range of 0 to 1, the default being 0.1. For larger inputs use a small value.
+Perf
+| where TimeGenerated >= ago(12h)
+| project Computer 
+| reduce by Computer with threshold = 0.6
+==================================================================================================
+
+// Another parameter is characters. Characters is basically a list of characters that should be ignored as "word breakers". For example, if a period was passed in, ContosoRetail.com would be evaluated as ContosoRetailcom. 
+Perf
+| where TimeGenerated >= ago(12h)
+| project Computer 
+| reduce by Computer with threshold = 0.7, characters = '.'
+==================================================================================================
+// If you want to take the default for threshold, you can just omit it
+Perf
+| where TimeGenerated >= ago(12h)
+| project Computer 
+| reduce by Computer with characters = '.'
+==================================================================================================
+------------------------------------------------------------------------------
+// Kusto Query Language (KQL) From Scratch
+// Module 8 - Exporting Data
+================================================================================================== 
+
+// The query below isn't horribly important, it's purpose is to bring back data we can then export. 
+
+// To export to a CSV, simply select the Export To menu above (all the way to the right of the Run toolbar) and pick Export To CSV - All Columns, or Export To CSV - Displayed Columns. 
+
+// In this query it won't make a difference, but if you were just querying an entire display, KQL shows a subset of the most common columns and hides the remaining ones. 
+
+// For this demo select Export To CSV - All Columns, then your browser will prompt you to save the file.  
+
+// To export to PowerBI, use the same Export menu, and pick the PowerBI option.It will actually create a TXT file, with instructions in it.  It will instruct you to open PowerBI, then use the  'Get Data' -> 'Blank Query' -> 'Advanced Query Editor' menu choices. From there, paste in the M query found in the text file.
+
+Perf 
+| where TimeGenerated >= ago(10d)
+| where CounterName in ('Free Megabytes', '% Processor Time', 'Kerberos Authentications')
+| extend DateGenerated = startofday(TimeGenerated) 
+| summarize Occurences = count() by DateGenerated, Computer, CounterName
+| project DateGenerated, Computer, CounterName, Occurences
+
+==================================================================================================
