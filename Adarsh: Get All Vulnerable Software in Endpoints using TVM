@@ -1,0 +1,11 @@
+// Search for devices with Critical and High CVE public exploit
+// This MS 365 Security KQL will fetch all the endpoints with vulnerable software(Critical and High)
+DeviceTvmSoftwareVulnerabilities
+| where OSPlatform !startswith_cs "WindowsServer" // Include endpoint devices only
+| where SoftwareName !in("windows_10","mac_os","windows_11") // Exclude OS Platform updates
+| join kind=inner(DeviceTvmSoftwareVulnerabilitiesKB) on CveId
+| where VulnerabilitySeverityLevel in ("Critical","High")
+| where IsExploitAvailable == 1 
+| where isnotempty(DeviceName)
+| project  DeviceName,OSPlatform,OSVersion,SoftwareVendor,SoftwareName,SoftwareVersion,CveId,VulnerabilitySeverityLevel,CvssScore,IsExploitAvailable
+| sort by VulnerabilitySeverityLevel asc 
