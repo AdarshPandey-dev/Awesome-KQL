@@ -1,0 +1,9 @@
+// Hunt A suspicious file by FileName
+// Developed by Adarsh Pandey
+let fileName = "abacdefghijklmnopqrstuvwxyz.docx"; // Replace the filename
+search in (DeviceFileEvents, EmailAttachmentInfo)
+Timestamp between (ago(7d) .. now())
+and (FileName =~ fileName
+or (ObjectType == 'File' and ObjectName == fileName)
+)
+| project Timestamp, FileName, DeviceName, SHA256, FileSize, ActionType, FolderPath, InitiatingProcessAccountName, InitiatingProcessFileName
