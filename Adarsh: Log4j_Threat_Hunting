@@ -5,3 +5,9 @@ DeviceTvmSoftwareInventory
 | where SoftwareVersion !startswith "1." // Per Apache's security advisory Log4j 1.x is not impacted by this vulnerability.
 | where SoftwareVersion !contains "2.17.1." // Fixed Version
 | project SoftwareName, DeviceName, SoftwareVersion, ProductCodeCpe
+
+
+
+
+// Log4j hunting with regex:
+File name contains: "^log4j(?:-.+?)?-2\.1[2-5](?:\.\d{1,2}-?)?.+?\.jar$"
