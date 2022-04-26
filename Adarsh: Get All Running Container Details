@@ -1,0 +1,5 @@
+ContainerInventory 
+| where TimeGenerated <= ago(7d)
+| where ContainerState == "Running"
+| project ContainerID, ContainerHostname, Name, Image, ImageID, Repository
+| summarize by ContainerHostname
