@@ -1,0 +1,2 @@
+DeviceTvmSoftwareVulnerabilities 
+| summarize Vulnerabilities=make_set(CveId) by DeviceName
