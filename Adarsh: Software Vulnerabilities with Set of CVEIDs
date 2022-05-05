@@ -1,4 +1,4 @@
 DeviceTvmSoftwareVulnerabilities 
 | where SoftwareName has "Firefox" // change the software name
-| project DeviceName, OSPlatform, OSVersion, SoftwareName, SoftwareVendor, SoftwareVersion, CveId
+//| project DeviceName, OSPlatform, OSVersion, SoftwareName, SoftwareVendor, SoftwareVersion, CveId
 | summarize Vulnerabilities=make_set(CveId) by DeviceName, SoftwareName, SoftwareVendor, SoftwareVersion
