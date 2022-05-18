@@ -1,0 +1,5 @@
+DeviceTvmSoftwareVulnerabilities 
+| where SoftwareName has "command_update"
+// | where SoftwareName has "Supportassist"
+| where VulnerabilitySeverityLevel == @"High" or VulnerabilitySeverityLevel == @"Critical"
+| summarize Vulnerabilities=make_set(CveId) by DeviceName, SoftwareVendor, SoftwareName, SoftwareVersion
