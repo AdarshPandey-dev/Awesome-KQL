@@ -1,0 +1,5 @@
+// Find the Job search results in Last 7 days
+DeviceNetworkEvents
+| where RemoteUrl has_any ("careerbuilder.com", "Naukri.com", "career", "Indeed.com", "Glassdoor.com", "internship", "job", "linkdin.com",  "monster.com", "simplyhired.com", "resume", "recruit")
+| project InitiatingProcessAccountName, InitiatingProcessAccountUpn, RemoteUrl
+| summarize make_set(RemoteUrl) by InitiatingProcessAccountUpn
