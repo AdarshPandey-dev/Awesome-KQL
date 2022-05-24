@@ -1,0 +1,7 @@
+// Identity Logon failure - Pivot Piechart//
+IdentityLogonEvents 
+| where ActionType == "LogonFailed"
+// | where FailureReason !contains "General failure"
+| project Timestamp, AccountDisplayName, AccountUpn, Application, LogonType, FailureReason, DeviceType, OSPlatform, IPAddress, Location, ISP, AdditionalFields
+| summarize count() by FailureReason
+| render piechart 
