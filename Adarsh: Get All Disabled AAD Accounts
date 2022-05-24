@@ -1,0 +1,4 @@
+// Find disabled AAD Accounts
+IdentityInfo 
+| where IsAccountEnabled == "0"
+| summarize by AccountDisplayName, EmailAddress, Department, JobTitle, Country, IsAccountEnabled
