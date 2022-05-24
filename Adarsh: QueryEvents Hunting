@@ -1,0 +1,5 @@
+IdentityQueryEvents // Query Events 
+//| where DeviceName !contains "xyz.com"
+//| where DestinationDeviceName !contains "abc.com"
+| where DestinationIPAddress !contains "8.8.8.8"
+| summarize by DestinationDeviceName, QueryTarget, ActionType, Query, Protocol
