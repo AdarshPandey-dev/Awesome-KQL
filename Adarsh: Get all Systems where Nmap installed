@@ -1,0 +1,3 @@
+DeviceTvmSoftwareInventory
+| where SoftwareName has_any ("nmap", "zenmap")
+| project DeviceName, OSPlatform, OSVersion, SoftwareVendor, SoftwareName, SoftwareVersion
