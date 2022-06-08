@@ -1,0 +1,5 @@
+// This query will help us to hunt/detect all the launched Nmap scans
+DeviceProcessEvents
+| where Timestamp >= ago(30d)
+| where InitiatingProcessCommandLine has "Cmd.Exe" and ProcessCommandLine contains "nmap"
+| project Timestamp, InitiatingProcessCommandLine, ProcessCommandLine, DeviceName, AccountUpn
