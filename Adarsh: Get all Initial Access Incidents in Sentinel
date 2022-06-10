@@ -1,0 +1,8 @@
+// Initial Access Incidents in Last 1 year
+SecurityIncident
+| where TimeGenerated > ago(360d)
+| summarize arg_min(TimeGenerated, *) by IncidentNumber
+| extend Tactics = tostring(AdditionalData.tactics)
+| where Tactics contains "Initial"
+| summarize count() by Title
+| sort by count_ desc 
