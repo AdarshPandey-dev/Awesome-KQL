@@ -1,0 +1,14 @@
+// Query: 1
+// All Alert Events
+AlertInfo
+| where Timestamp > ago(30d)
+| summarize count() by Title, Severity
+| sort by count_ desc
+
+
+// Query: 1
+// Visualize Alert Events in piechart
+AlertInfo
+| where Timestamp > ago(30d)
+| summarize count() by Title, Severity
+| render piechart
