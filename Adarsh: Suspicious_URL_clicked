@@ -15,3 +15,8 @@ CommonSecurityLog
 | Project TimeGenerated, Activity, DeviceAction, DestinationHostName, SourceUserName
 
 
+//Query 3: Zscaler hunting:
+CommonSecurityLog
+| where DeviceVendor contains "Zscaler"
+| where RequestURL contains "malicous url"
+| project TimeGenerated, RequestURL, SourceHostName, SourceUserName, Activity, DeviceAddress, DeviceVendor, DeviceAction, AdditionalExtensions
