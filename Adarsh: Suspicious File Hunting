@@ -1,3 +1,5 @@
+Query 1:
+
 // Hunt A suspicious file by FileName
 // Developed by Adarsh Pandey
 let fileName = "abacdefghijklmnopqrstuvwxyz.docx"; // Replace the filename
@@ -7,3 +9,13 @@ and (FileName =~ fileName
 or (ObjectType == 'File' and ObjectName == fileName)
 )
 | project Timestamp, FileName, DeviceName, SHA256, FileSize, ActionType, FolderPath, InitiatingProcessAccountName, InitiatingProcessFileName
+
+
+Query 2:
+
+let Suspected_File_Name = "upgrade9.0.exe";
+search in (DeviceFileEvents, EmailAttachmentInfo, CloudAppEvents, DeviceProcessEvents, DeviceEvents)
+Timestamp between (ago(1d) .. now())
+and (FileName =~ Suspected_File_Name
+)
+| project Timestamp, FileName, SHA1, DeviceName, ActionType, FolderPath, InitiatingProcessAccountName, InitiatingProcessFolderPath
