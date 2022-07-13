@@ -1,0 +1,7 @@
+// NTLMv1 is a very weak authentication protocol by today’s standards. And while v2 is much more secure than v1, it’s still not nearly as secure as more recent protocols like Kerberos.
+// Hunt the Successful NTLMv1 login events.
+
+SecurityEvent
+| where EventID == '4624'
+| where LogonType in (2,3,9,10)
+| where LmPackageName == "NTLM V1"
