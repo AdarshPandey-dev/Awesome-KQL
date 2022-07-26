@@ -1,0 +1,19 @@
+// Sentinel Alert Closed by SOC Analyst(Indiviual)
+SecurityIncident
+| where TimeGenerated > ago(30d)
+| project TimeGenerated, Title, Severity, Status, IncidentNumber, ModifiedBy
+| where Status == "Closed"
+| where ModifiedBy == "SOC Analyst Name"
+| sort by TimeGenerated desc   
+
+
+
+// Sentinel Alert Closed by SOC Analyst(Team)
+SecurityIncident
+| where TimeGenerated > ago(30d)
+| project TimeGenerated, Title, Severity, Status, IncidentNumber, ModifiedBy
+| where Status == "Closed"
+| summarize count() by ModifiedBy
+| sort by count_ desc   
+// | render piechart // visualize the result in piechart
+
