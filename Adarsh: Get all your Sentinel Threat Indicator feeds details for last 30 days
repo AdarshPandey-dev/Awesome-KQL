@@ -1,0 +1,6 @@
+// Get all your Sentinel Threat Indiactor feed details for last 30 days
+ThreatIntelligenceIndicator
+| where TimeGenerated >= ago(30d)
+| project TimeGenerated, Action, DomainName, NetworkIP, Url, Type, SourceSystem   
+| summarize count() by SourceSystem
+| render piechart
