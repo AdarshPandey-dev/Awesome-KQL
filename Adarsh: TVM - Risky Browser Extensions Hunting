@@ -1,0 +1,8 @@
+// TVM - Risky Browser Extensions Hunting
+DeviceTvmBrowserExtensions
+| where ExtensionRisk == "Critical"
+// | where ExtensionRisk == "High"
+| where IsActivated == "true"
+| join kind=inner DeviceInfo on DeviceId
+//| where DeviceName == "Desktop" // Hunt for single device
+| summarize Extensions=make_set(ExtensionName) by DeviceName
