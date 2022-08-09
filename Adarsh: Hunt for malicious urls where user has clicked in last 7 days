@@ -1,0 +1,7 @@
+// Hunt for malicious urls where user has clicked in last 7 days
+
+UrlClickEvents 
+| where Timestamp >= ago(7d)
+| where ActionType == "ClickAllowed" or IsClickedThrough !="0"
+| where isnotempty(ThreatTypes)
+| project-reorder Timestamp, AccountUpn, Url, ActionType, ThreatTypes, IPAddress, IsClickedThrough, DetectionMethods, UrlChain
