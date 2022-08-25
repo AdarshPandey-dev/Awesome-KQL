@@ -1,0 +1,7 @@
+// Hunt for the quarantined email
+
+EmailEvents
+| where TimeGenerated > ago(30d)
+| where SenderFromDomain contains "Salesforce.com" // change the domain name
+| where DeliveryLocation == "Quarantine"
+| project TimeGenerated, DeliveryAction, DeliveryLocation, EmailDirection, RecipientEmailAddress, SenderDisplayName, SenderFromAddress, Subject, AuthenticationDetails
