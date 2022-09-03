@@ -12,12 +12,12 @@
 ```
 KQL:
 AdarshPandey
-| where Profession == "CyberSecurity Engineer"
-// A former Electronics Engineer turned CyberSecurity Geek
-| where Code in (Python, Powershell, ShellScripting)
+| where Profession == "CyberSecurity Engineer" // A former Electronics Engineer turned CyberSecurity Geek
+| where Code in (Python, Powershell, Bash, KQL)
 | where Technologies in (Azure, SIEM, SecOps, VAPT)
 | where TwitterAccount == "@InfosecMonk"
 | Where SourceCountry == "India"
+| Project UserName, Profession, Code, Technologies, TwitterAccount, SourceCountry
 ```
 
 
