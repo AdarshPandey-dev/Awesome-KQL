@@ -1,0 +1,22 @@
+// Hunting processes that accessing the risky Teams directory to get the session tokens:
+// Developed by Adarsh Pandey
+// Reference: https://www.bleepingcomputer.com/news/security/microsoft-teams-stores-auth-tokens-as-cleartext-in-windows-linux-macs/
+DeviceFileEvents
+| where TimeGenerated <= ago(180d)
+| where FolderPath contains “\\Microsoft\\Teams\\Cookies” or FolderPath contains “\\Microsoft\\Teams\\Local Storage\\leveldb”
+| where isnotempty(InitiatingProcessFileName) 
+| where isnotempty(FileName) 
+| where isnotempty(FileSize)
+| where FileSize <> 0
+| where InitiatingProcessParentFileName <> "Update.exe"
+| where InitiatingProcessParentFileName <> "Teams.exe"
+| project TimeGenerated, 
+          ActionType, 
+          DeviceName, 
+          InitiatingProcessAccountName, 
+          FileName, 
+          FileSize, 
+          FolderPath, 
+          InitiatingProcessFileName, 
+          InitiatingProcessParentFileName
+| summarize by ActionType, DeviceName, InitiatingProcessAccountName, FileName, FileSize, InitiatingProcessFileName, InitiatingProcessParentFileName, FolderPath
