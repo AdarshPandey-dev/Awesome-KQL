@@ -3,7 +3,7 @@
 // Reference: https://www.bleepingcomputer.com/news/security/microsoft-teams-stores-auth-tokens-as-cleartext-in-windows-linux-macs/
 DeviceFileEvents
 | where TimeGenerated <= ago(180d)
-| where FolderPath contains “\\Microsoft\\Teams\\Cookies” or FolderPath contains “\\Microsoft\\Teams\\Local Storage\\leveldb”
+| where FolderPath contains "\\Microsoft\\Teams\\Cookies" or FolderPath contains "\\Microsoft\\Teams\\Local Storage\\leveldb"
 | where isnotempty(InitiatingProcessFileName) 
 | where isnotempty(FileName) 
 | where isnotempty(FileSize)
