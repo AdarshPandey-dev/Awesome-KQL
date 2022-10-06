@@ -17,7 +17,7 @@ AdarshPandey
 | where Technologies in (Azure, SIEM, SecOps, VAPT)
 | where TwitterAccount == "@InfosecMonk"
 | Where SourceCountry == "India"
-| Project UserName, Profession, Code, Technologies, TwitterAccount, SourceCountry
+| Project Name, Profession, Code, Technologies, TwitterAccount, SourceCountry
 ```
 
 
