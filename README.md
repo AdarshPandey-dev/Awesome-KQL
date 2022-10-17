@@ -3,6 +3,8 @@
 <p><em> "A former Electronics Engineer turned CyberSecurity Geek" <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="30"> 
 </em></p>
 
+<img src="https://media.giphy.com/media/3oEjHWpiVIOGXT5l9m/giphy.gif" width="300">
+
 [![Twitter Follow](https://img.shields.io/twitter/follow/InfosecMonk?label=Follow)](https://twitter.com/intent/follow?screen_name=InfosecMonk)
 [![Linkedin: Adarsh](https://img.shields.io/badge/adarsh-pandey?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/adarsh-pandey-2019//)](https://www.linkedin.com/in/adarsh-pandey-2019/)
 ![GitHub followers](https://img.shields.io/github/followers/AdarshPandey-dev?label=Follow&style=social)
@@ -20,12 +22,8 @@ AdarshPandey
 | Project Name, Profession, Code, Technologies, TwitterAccount, SourceCountry
 ```
 
-[![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=AdarshPandey-dev)](https://github.com/anuraghazra/github-readme-stats)
 ![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=AdarshPandey-dev&show_icons=true&theme=radical)
 
-<br>
-
-<img src="https://media.giphy.com/media/3oEjHWpiVIOGXT5l9m/giphy.gif" width="300">
 
 </br>
 
