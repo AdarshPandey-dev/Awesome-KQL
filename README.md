@@ -5,8 +5,6 @@
 
 <img src="https://media.giphy.com/media/3oEjHWpiVIOGXT5l9m/giphy.gif" width="300">
 
-[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=AdarshPandey-dev)](https://github.com/anuraghazra/github-readme-stats)
-
 [![Twitter Follow](https://img.shields.io/twitter/follow/InfosecMonk?label=Follow)](https://twitter.com/intent/follow?screen_name=InfosecMonk)
 [![Linkedin: Adarsh](https://img.shields.io/badge/adarsh-pandey?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/adarsh-pandey-2019//)](https://www.linkedin.com/in/adarsh-pandey-2019/)
 ![GitHub followers](https://img.shields.io/github/followers/AdarshPandey-dev?label=Follow&style=social)
