@@ -20,7 +20,38 @@ AdarshPandey
 | Project Name, Profession, Code, Technologies, TwitterAccount, SourceCountry
 ```
 
+## Hi there 👋
 
+<!--
+**CyberSecurityUP/CyberSecurityUP** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+
+Here are some ideas to get you started:
+
+- 🔭 I’m currently working on ...
+- 🌱 I’m currently learning ...
+- 👯 I’m looking to collaborate on ...
+- 🤔 I’m looking for help with ...
+- 💬 Ask me about ...
+- 📫 How to reach me: ...
+- 😄 Pronouns: ...
+- ⚡ Fun fact: ...
+-->
+
+### I'm Joas Antonio
+
+Red Team Expert | InfoSec Leader | OWASP Member | Speaker and Teaching | Cyber Security Mentor | Article Writer | Mitre Att&ck Contributor | Hacking is NOT a Crime Advocate
+
+OSCP/OSWP, CEH Master, eJPT, eMAPT, eWPT, eWPTXv2, eCXD, eCPPT, eCPTX, CRTO 
+
+<br>
+
+<img src="https://media.giphy.com/media/3oEjHWpiVIOGXT5l9m/giphy.gif" width="300">
+
+</br>
+
+[![CyberSecurityUP GitHub stats](https://github-readme-stats.vercel.app/api?username=CyberSecurityUP&theme=dark)](https://github.com/CyberSecurityUP/github-readme-stats)
+
+:computer: I'm Red Team Leader.
 
 
 
