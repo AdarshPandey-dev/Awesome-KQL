@@ -37,23 +37,13 @@ Here are some ideas to get you started:
 - ⚡ Fun fact: ...
 -->
 
-### I'm Joas Antonio
-
-Red Team Expert | InfoSec Leader | OWASP Member | Speaker and Teaching | Cyber Security Mentor | Article Writer | Mitre Att&ck Contributor | Hacking is NOT a Crime Advocate
-
-OSCP/OSWP, CEH Master, eJPT, eMAPT, eWPT, eWPTXv2, eCXD, eCPPT, eCPTX, CRTO 
-
 <br>
 
 <img src="https://media.giphy.com/media/3oEjHWpiVIOGXT5l9m/giphy.gif" width="300">
 
 </br>
 
-[![CyberSecurityUP GitHub stats](https://github-readme-stats.vercel.app/api?username=CyberSecurityUP&theme=dark)](https://github.com/CyberSecurityUP/github-readme-stats)
-
-:computer: I'm Red Team Leader.
-
-
+[![CyberSecurityUP GitHub stats](https://github-readme-stats.vercel.app/api?username=CyberSecurityUP&theme=dark)](https://github.com/AdarshPandey-dev/github-readme-stats)
 
 <img src="https://media.giphy.com/media/LnQjpWaON8nhr21vNW/giphy.gif" width="60"> <em><b>I love connecting with different people</b> so if you want to say <b>hi, I'll be happy to meet you more!</b> 😊</em>
 
