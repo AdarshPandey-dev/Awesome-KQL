@@ -21,6 +21,7 @@ AdarshPandey
 ```
 
 [![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=AdarshPandey-dev)](https://github.com/anuraghazra/github-readme-stats)
+![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=AdarshPandey-dev&show_icons=true&theme=radical)
 
 <br>
 
