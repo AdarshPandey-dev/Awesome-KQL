@@ -1,0 +1,16 @@
+// Find the OTT search results in Last 7 days
+DeviceNetworkEvents
+| where Timestamp >= ago(7d)
+| where RemoteUrl startswith "Voot" 
+     or RemoteUrl startswith "Balaji" 
+     or RemoteUrl startswith "BigFlix" 
+     or RemoteUrl startswith "Amazon Prime" 
+     or RemoteUrl startswith "Viu" 
+     or RemoteUrl startswith "Sony LIV" 
+     or RemoteUrl startswith "Eros Now" 
+     or RemoteUrl startswith "ZEE5" 
+     or RemoteUrl startswith "Hotstar" 
+     or RemoteUrl startswith "Netflix"
+| where InitiatingProcessAccountName != @"system"
+| project InitiatingProcessAccountName, InitiatingProcessAccountUpn, RemoteUrl
+| summarize by InitiatingProcessAccountUpn, RemoteUrl
