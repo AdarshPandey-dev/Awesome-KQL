@@ -1,0 +1,19 @@
+// Find the Job search results in Last 30 days
+DeviceNetworkEvents
+| where Timestamp >= ago(30d)
+| where RemoteUrl startswith "careerbuilder.com" 
+     or RemoteUrl startswith "Naukri.com" 
+     or RemoteUrl startswith "career" 
+     or RemoteUrl startswith "Indeed.com" 
+     or RemoteUrl startswith "Glassdoor.com" 
+     or RemoteUrl startswith "internship" 
+     or RemoteUrl startswith "job" 
+     or RemoteUrl startswith "www.linkedin.com/jobs/"
+     or RemoteUrl startswith "monster.com" 
+     or RemoteUrl startswith "recruit" 
+     or RemoteUrl startswith "resume" 
+     or RemoteUrl startswith "simplyhired.com"
+| where RemoteUrl !endswith ".edu" and RemoteUrl !startswith "career.lms.pmi.org"
+| where InitiatingProcessAccountName != @"system" 
+| project InitiatingProcessAccountUpn, RemoteUrl
+| summarize make_set(RemoteUrl) by InitiatingProcessAccountUpn
