@@ -13,7 +13,6 @@ DeviceNetworkEvents
      or RemoteUrl startswith "recruit" 
      or RemoteUrl startswith "resume" 
      or RemoteUrl startswith "simplyhired.com"
-| where RemoteUrl !endswith ".edu" and RemoteUrl !startswith "career.lms.pmi.org"
 | where InitiatingProcessAccountName != @"system" 
 | project InitiatingProcessAccountUpn, RemoteUrl
 | summarize make_set(RemoteUrl) by InitiatingProcessAccountUpn
