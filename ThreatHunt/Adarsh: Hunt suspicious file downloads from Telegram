@@ -1,0 +1,6 @@
+// Hunt suspicious file downloads from Telegram
+
+DeviceFileEvents
+| where FileOriginUrl contains "Telegram"
+// | summarize by Timestamp, FileName, DeviceName, InitiatingProcessAccountName, PreviousFileName, FolderPath, PreviousFolderPath // Get timestamp 
+| summarize by FileName, DeviceName, InitiatingProcessAccountName, PreviousFileName, FolderPath
