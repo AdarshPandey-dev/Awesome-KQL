@@ -1,0 +1,7 @@
+// Zscaler - IPS policies actions
+CommonSecurityLog
+| where TimeGenerated >= ago(7d)
+| where DeviceEventClassID == "Blocked"
+| where Activity contains "IPS"
+| summarize Count = count()  by  Activity
+| order by Count desc
