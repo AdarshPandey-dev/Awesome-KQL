@@ -1,0 +1,10 @@
+// Zscaler blocked top threats
+CommonSecurityLog
+| where TimeGenerated >= ago(7d)
+| where DeviceVendor == "Zscaler"
+| where DeviceEventClassID == "Blocked"
+| where DeviceCustomString5Label == "threatname"
+| where DeviceCustomString5 != "None"
+| where DeviceCustomString5 != "suspiciousfile"
+| summarize Count = count() by ['Threat name'] = DeviceCustomString5, threatname = DeviceCustomString5
+| order by Count desc
