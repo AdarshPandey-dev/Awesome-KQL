@@ -1,0 +1,8 @@
+// Zscaler - Top User's riskscore and count
+CommonSecurityLog
+| where DeviceProduct == "NSSWeblog"
+| where SourceUserPrivileges != SourceUserName 
+| extend DeviceCustomNumber1 = coalesce(column_ifexists("FieldDeviceCustomNumber1", long(null)),DeviceCustomNumber1) 
+| where DeviceCustomNumber1>=50
+| summarize Count = count() by SourceUserName, RiskScore = DeviceCustomNumber1
+| order by RiskScore desc, Count
