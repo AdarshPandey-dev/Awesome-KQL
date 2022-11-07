@@ -1,0 +1,7 @@
+// Zscaler - Top Blocked services
+CommonSecurityLog
+| where DeviceProduct == "NSSWeblog"
+| where DeviceEventClassID !contains "Allow" 
+| where DestinationServiceName != "General Browsing"
+| summarize count() by DestinationServiceName
+| order by count_ desc
