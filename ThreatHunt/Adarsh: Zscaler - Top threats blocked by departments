@@ -1,0 +1,7 @@
+// Zscaler - Top threats blocked by department  
+CommonSecurityLog
+| where DeviceVendor == "Zscaler"
+| where DeviceEventClassID contains "Block"
+| where DeviceProduct == "NSSWeblog"
+| summarize Count = count() by urlcat = DeviceCustomString2
+| order by Count desc
