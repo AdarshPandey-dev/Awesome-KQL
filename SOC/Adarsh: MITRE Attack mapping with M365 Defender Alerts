@@ -1,0 +1,5 @@
+// MITRE Attack mapping with M365 Defender Alerts
+AlertInfo
+| where Timestamp >= ago(30d)
+| summarize count() by Category, AttackTechniques
+| render piechart 
