@@ -1,0 +1,6 @@
+let tree_height = 10;
+range i from 0 to tree_height * 2  step 2   
+| extend side_width = tree_height + 1 - i / 2
+| extend side_space = strcat_array(repeat(" ", side_width), " ")
+| project Happy_Holidays = case(i != 0, strcat(side_space, "O", strcat_array(repeat("V", i - 1), ""), @"O", side_space), 
+strcat(side_space, " O", side_space))
