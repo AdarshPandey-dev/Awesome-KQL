@@ -1,0 +1,23 @@
+KQL 1:
+
+BehaviorAnalytics
+| where TimeGenerated >= ago(7d)
+| where UserPrincipalName == “Use@Company.com” // Add the UserPrincipalName
+//| where SourceIPAddress == "IP_Address" // Add the IP Address
+//| project TimeGenerated, UserPrincipalName, SourceIPAddress, SourceIPLocation, ActivityType, ActionType
+
+
+KQL 2:
+SigninLogs
+| where TimeGenerated >= ago(14d)
+//| where Identity == "User Name" or UserPrincipalName == “UserName@company.com” // Add the UserPrincipalName and email address
+| where * contains "IP Address" // Add the IP address
+| where ResultType == 0
+| extend city = LocationDetails.city
+| extend country = LocationDetails.countryOrRegion
+| extend state = LocationDetails.state
+//| project TimeGenerated, UserPrincipalName, IPAddress, country, state, city, UserAgent
+//| summarize count() by bin(TimeGenerated, 1d), tostring(country), tostring(state), tostring(city), UserAgent
+//| sort by TimeGenerated
+//| render columnchart 
+//| summarize  by UserAgent, IPAddress
