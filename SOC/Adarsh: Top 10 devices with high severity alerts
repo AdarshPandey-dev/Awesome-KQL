@@ -1,0 +1,7 @@
+//Top 10 Devices with High Severity Defender For Endpoint Alerts
+SecurityAlert
+| where TimeGenerated > ago (30d) 
+| where ProviderName == "MDATP" // Defender for Endpoints
+| where AlertSeverity has ("high")
+| summarize Count=count() by CompromisedEntity
+| top 10 by Count
