@@ -1,0 +1,8 @@
+// Get Sentinel Alert status for last 1 day
+SecurityIncident
+| where TimeGenerated > ago(1d)
+| summarize count() by Title,  
+                       Severity, 
+                       Status, 
+                       ProviderName, 
+                       ModifiedBy
