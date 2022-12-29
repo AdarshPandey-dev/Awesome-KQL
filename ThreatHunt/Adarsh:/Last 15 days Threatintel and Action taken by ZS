@@ -1,0 +1,19 @@
+// Last 15 days Threatintel and Action taken by ZS
+let date_lookBack_value = 7d;
+let indicator_lookBack_value = 15d;
+ThreatIntelligenceIndicator
+| where TimeGenerated > ago(indicator_lookBack_value)
+| where isnotempty(DomainName)
+| join (
+CommonSecurityLog
+| where TimeGenerated > ago(date_lookBack_value)
+| where isnotempty(DestinationHostName)
+| where isnotempty(SourceUserName)
+| extend ZS_TimeGenerated = TimeGenerated
+)
+on $left.DomainName == $right.DestinationHostName
+| project SourceUserName, DomainName, ZS_TimeGenerated, Description, Activity
+| extend AccountCustomEntity = SourceUserName
+| extend HostCustomEntity = DomainName
+| extend URLCustomEntity = DomainName
+| summarize by SourceUserName, DomainName, Activity, Description
