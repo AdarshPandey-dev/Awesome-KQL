@@ -1,0 +1,7 @@
+//Top Defender for Endpoints Alerts with count
+SecurityAlert
+| where TimeGenerated > ago (30d)
+| where ProviderName == "MDATP"
+| summarize count() by AlertName, AlertSeverity
+| sort by count_ desc
+| render barchart   
