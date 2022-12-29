@@ -1,0 +1,4 @@
+// Get Alert when a public IP was created or modified
+AzureActivity
+| where ResourceProvider == "Microsoft.Network"
+| where OperationName == "Create or Update Public Ip Address"
