@@ -1,0 +1,8 @@
+// HoneyPot Watchlist as a variable
+let watchlist = _GetWatchlist('attacker_id') // attacker_id is a ZS deception alias
+| project attacker_ip; // attacker_ip are the IPs of the attckers
+CommonSecurityLog // Firewall/Proxy logs
+| where SourceIP in (watchlist)
+// | where isnotempty( MaliciousIP)
+| project-reorder MaliciousIP, SourceIP, DestinationIP, DeviceVendor, Activity, DeviceAction, IndicatorThreatType, ThreatConfidence, TimeGenerated
+| summarize by MaliciousIP, SourceIP, DestinationIP, DeviceVendor, Activity, DeviceAction, IndicatorThreatType, ThreatConfidence, TimeGenerated
