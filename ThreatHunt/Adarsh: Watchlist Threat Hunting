@@ -1,3 +1,4 @@
+// Query 1:
 // HoneyPot Watchlist as a variable
 let watchlist = _GetWatchlist('attacker_id') // attacker_id is a ZS deception alias
 | project attacker_ip; // attacker_ip are the IPs of the attckers
@@ -6,3 +7,28 @@ CommonSecurityLog // Firewall/Proxy logs
 // | where isnotempty( MaliciousIP)
 | project-reorder MaliciousIP, SourceIP, DestinationIP, DeviceVendor, Activity, DeviceAction, IndicatorThreatType, ThreatConfidence, TimeGenerated
 | summarize by MaliciousIP, SourceIP, DestinationIP, DeviceVendor, Activity, DeviceAction, IndicatorThreatType, ThreatConfidence, TimeGenerated
+
+
+// Query 2:
+// Exclue the searches by using watchlist
+let watchlist = (_GetWatchlist('TestSomething') | project Attacker_IP);
+CommonSecurityLog
+| where ComputerIP !in (watchlist)
+
+
+// Query 3:
+// Use watchlist directly in the query
+CommonSecurityLog
+| where ComputerIP in (
+(_GetWatchlist('TestSomething')
+| project Attacker_IP)
+)
+
+
+// Query 4:
+// Exclude watchlist directly in the query
+CommonSecurityLog
+| where ComputerIP !in (
+(_GetWatchlist('TestSomething')
+| project Attacker_IP)
+)
