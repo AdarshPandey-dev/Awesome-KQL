@@ -1,0 +1,6 @@
+// Sentinel Incidents closed by Individual
+SecurityIncident
+| where TimeGenerated >= ago(7d)
+| where Status == "Closed"
+| where ModifiedBy == "user Name" // Change user
+| summarize count() by Title
