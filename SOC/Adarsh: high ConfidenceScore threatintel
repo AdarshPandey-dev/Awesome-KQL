@@ -1,0 +1,7 @@
+// Get all high ConfidenceScore threatintel 
+ThreatIntelligenceIndicator 
+| where Active == true
+| where TimeGenerated >= ago(30d)
+| where ConfidenceScore >= 75
+| summarize by Action, Description, ThreatType, DomainName, NetworkIP, ConfidenceScore
+| sort by ConfidenceScore desc 
