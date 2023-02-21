@@ -1,0 +1,9 @@
+// Visualize top threat indicators in last 7 days
+ThreatIntelligenceIndicator 
+| where TimeGenerated >= ago(7d)
+// | where isnotempty(DomainName) 
+// | summarize count() by DomainName
+| where isnotempty(NetworkIP) 
+| summarize count() by NetworkIP
+| where count_ >= 2
+| render piechart    
