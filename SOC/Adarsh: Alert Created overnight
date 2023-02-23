@@ -1,0 +1,24 @@
+// Query 1 : Alert Created overnight
+SecurityIncident
+| where TimeGenerated > ago(1d) 
+| where Status in ("New", "Active")
+| order by Severity == "High" desc, Severity == "Medium", Severity == "Low"
+| summarize arg_max(TimeGenerated, *) by IncidentNumber
+| summarize High=countif(Severity == "High"), Medium=countif(Severity=="Medium"), Low=countif(Severity=="Low"), Informational=countif(Severity=="Informational")
+
+//Query 2 : Incident full details
+//References
+// Report concept
+// https://azurecloudai.blog/2022/04/28/azure-sentinel-sending-an-email-each-morning-with-the-list-of-daily-incidents-created/
+// Collapsing table rows by IncidentNumber
+// https://learn.microsoft.com/en-us/azure/sentinel/manage-soc-with-incident-metrics
+SecurityIncident
+| where TimeGenerated > ago(1d) 
+| where Status in ("New", "Active")
+| where Severity in ("High", "Medium")
+| summarize arg_max(TimeGenerated, *) by IncidentNumber
+| extend ShortDescription = extract("([A-Z][a-z].*?[.!?])(?:$| |[A-Z])",1,Description)
+| extend IncidentLink=strcat('<a href="',IncidentUrl,'">',tostring(IncidentNumber),'</a>')
+| extend ProviderLink=strcat('<a href="',AdditionalData.providerIncidentUrl,'">',tostring(ProviderIncidentId),'</a>')
+| order by Severity == "High" desc, Severity == "Medium", Severity == "Low", IncidentNumber
+| project Severity, Title, ShortDescription, IncidentLink, ProviderLink
