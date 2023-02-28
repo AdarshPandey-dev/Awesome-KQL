@@ -1,0 +1,5 @@
+// Get all the table on the workspace
+search *
+| where TimeGenerated <= ago(30d)
+| summarize count() by $table
+| sort by count_ desc
