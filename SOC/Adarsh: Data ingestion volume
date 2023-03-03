@@ -1,0 +1,25 @@
+// Data ingestion volume by solution
+Usage
+| where StartTime >= startofday(ago(31d)) and EndTime < startofday(now())
+| where IsBillable == true
+| summarize BillableDataGB = sum(Quantity) / 1000. by bin(StartTime, 1d), Solution
+| extend Solution = iif(Solution == "SecurityInsights", "AzureSentinel", Solution)
+| render columnchart with(title="Data ingestion volume by solution")
+
+
+// Data ingestion volume by data type
+Usage
+| where StartTime >= startofday(ago(31d)) and EndTime < startofday(now())
+| where IsBillable == true
+| summarize BillableDataGB = sum(Quantity) / 1000. by bin(StartTime, 1d), DataType
+| render columnchart with(title="Data ingestion volume by data type")
+
+
+// Data ingestion volume by both solution and data type
+Usage
+| where TimeGenerated > ago(32d)
+| where StartTime >= startofday(ago(31d)) and EndTime < startofday(now())
+| where IsBillable == true
+| summarize BillableDataGB = sum(Quantity) by Solution, DataType
+| extend Solution = iif(Solution == "SecurityInsights", "AzureSentinel", Solution)
+| sort by Solution asc, DataType asc
