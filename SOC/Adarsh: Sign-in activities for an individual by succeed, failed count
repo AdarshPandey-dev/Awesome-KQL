@@ -1,0 +1,7 @@
+// Sign-in activities for an individual by succeed, failed count
+SigninLogs
+|  where TimeGenerated >ago(7d)
+| where UserPrincipalName contains "useremail"
+| summarize Attempts = count(), Failed=countif(ResultType !=0), Succeeded = countif(ResultType ==0) by AppDisplayName
+|  top 10 by Failed
+| sort by Failed
