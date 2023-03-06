@@ -1,0 +1,7 @@
+IdentityLogonEvents
+| where TimeGenerated >= ago(1d)
+| where Application == @"Active Directory"
+| where ActionType <> "LogonSuccess"
+| summarize Brute_Force_Attack=count() by ActionType, AccountName, AccountDomain, FailureReason, DestinationDeviceName
+| where Brute_Force_Attack >= 3
+| order by Brute_Force_Attack desc
