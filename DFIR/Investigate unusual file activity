@@ -1,0 +1,8 @@
+// KQL: Investigate unusual file activity
+// Developed by: Adasrh Pandey
+// Description: This query will investigate unusual file activity on the system
+DeviceFileEvents
+| where TimeGenerated >= ago(1d)
+| where FileName contains ".dll" and InitiatingProcessCommandLine !contains "System32" and InitiatingProcessCommandLine !contains "SysWOW64"
+| summarize count() by DeviceName, InitiatingProcessCommandLine, InitiatingProcessId, FileName, FolderPath, InitiatingProcessAccountUpn
+| order by count_ desc
