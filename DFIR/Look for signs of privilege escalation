@@ -1,0 +1,8 @@
+// KQL: Look for signs of privilege escalation
+// Developed by: Adasrh Pandey
+// Description: Look for signs of privilege escalation
+SecurityEvent
+| where TimeGenerated >= ago(1d)
+| where EventID == 4672 and TargetUserName != "SYSTEM" and TargetUserName != "$" and TargetUserName != "LOCAL SERVICE" and TargetUserName != "NETWORK SERVICE"
+| summarize count() by Computer, AccountName, TargetUserName, PrivilegeList
+| order by count_ desc
