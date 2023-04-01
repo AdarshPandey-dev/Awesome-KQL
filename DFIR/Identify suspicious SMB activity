@@ -1,0 +1,8 @@
+// KQL: Identify suspicious SMB activity
+// Developed by: Adasrh Pandey
+// Description: Identify suspicious SMB activity
+SecurityEvent
+| where TimeGenerated >= ago(1d)
+| where EventID == 5140 and AccessMask == "0x120089" or AccessMask == "0x13019f" or AccessMask == "0x1301bf" or AccessMask == "0x1401bf" or AccessMask == "0x1411ff"
+| summarize count() by Computer, AccountName, ShareName, ShareLocalPath
+| order by count_ desc
