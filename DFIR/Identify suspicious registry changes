@@ -1,0 +1,10 @@
+// KQL: Identify suspicious registry changes
+// Developed by: Adasrh Pandey
+// Description: This query will identifiy the suspicious registry changes on the device in last 30 days
+DeviceRegistryEvents
+| where TimeGenerated >= ago(30d)
+| where RegistryKey contains "HKEY_LOCAL_MACHINE\\SOFTWARE" 
+    and RegistryKey !contains "Microsoft\\Windows\\CurrentVersion\\Run" 
+    and RegistryKey !contains "Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\\Startup"
+| where RegistryValueName == "ImageFileExecutionOptions" and RegistryValueData contains "powershell.exe"
+| project TimeGenerated, DeviceName, RegistryKey, RegistryValueName, RegistryValueData, InitiatingProcessAccountUpn, InitiatingProcessCommandLine, InitiatingProcessId
