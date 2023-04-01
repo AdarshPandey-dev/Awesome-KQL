@@ -1,0 +1,18 @@
+// KQL: Identify suspicious outbound network traffic
+// Developed by: Adasrh Pandey
+// Description: The query looks for the suspicous network traffic on the system 
+// Modify the IP address and port as per your network configuration
+let suspiciousDestIP = "10.0.0.5";
+// let suspiciousDestPort = "4444"; 
+DeviceNetworkEvents
+| where TimeGenerated >= ago(1d)
+| where ActionType == "NetworkOutbound"
+| where RemoteIP != "" and RemotePort != ""
+| where RemoteIP == suspiciousDestIP // and RemotePort == suspiciousDestPort
+| extend Protocol = case(
+    Protocol == 6, "TCP",
+    Protocol == 17, "UDP",
+    Protocol == 1, "ICMP",
+    "Unknown"
+)
+| project TimeGenerated, DeviceName, Protocol, RemoteIP, RemotePort, RemoteUrl, InitiatingProcessFileName, InitiatingProcessCommandLine, InitiatingProcessCreationTime
