@@ -1,0 +1,8 @@
+// KQL: Look for signs of lateral movement using WMI
+// Developed by: Adasrh Pandey
+// Description: Look for signs of lateral movement using WMI
+DeviceProcessEvents
+| where TimeGenerated >= ago(7d)
+| where InitiatingProcessCommandLine contains "wmic" and InitiatingProcessCommandLine contains "process call create"
+| summarize count() by InitiatingProcessCommandLine, DeviceName, AccountName, ProcessCommandLine
+| order by count_ desc
