@@ -1,0 +1,11 @@
+// KQL: Identify suspicious network traffic
+// Developed by: Adasrh Pandey
+// Description: Identify suspicious network traffic
+DeviceNetworkEvents
+| where TimeGenerated >= ago(1h)
+| where LocalPort != 80 and RemotePort != 80 and RemotePort != 443
+// | summarize by RemotePort
+// | summarize by RemoteIP
+// | summarize by Protocol
+| summarize count() by Protocol, RemoteIP, RemotePort, LocalIP, LocalPort
+| order by count_ desc
