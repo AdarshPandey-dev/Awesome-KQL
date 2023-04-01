@@ -1,0 +1,8 @@
+// KQL: Identify suspicious process executions
+// Developed by: Adasrh Pandey
+// Description: The query looks for the suspicous processes ran on the system  
+DeviceProcessEvents
+| where TimeGenerated >= ago(30d)
+| where ProcessCommandLine contains "powershell" and ProcessCommandLine contains "-enc" and ProcessCommandLine !contains "-File" and ProcessCommandLine !contains "-Command"
+| project TimeGenerated, DeviceName, InitiatingProcessCommandLine, ProcessCommandLine, AccountName, FolderPath, InitiatingProcessFileName
+| order by TimeGenerated desc 
