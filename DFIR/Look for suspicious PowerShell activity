@@ -1,0 +1,8 @@
+// KQL: Look for suspicious PowerShell activity
+// Developed by: Adasrh Pandey
+// Description: This query will Look for suspicious PowerShell activity on all the devices
+DeviceProcessEvents
+| where TimeGenerated >= ago(1d)
+| where ProcessCommandLine contains "powershell" and ProcessCommandLine !contains "-EncodedCommand" and ProcessCommandLine !contains "-Command" and ProcessCommandLine !contains "-File"
+| summarize count() by DeviceName, AccountName
+| order by count_ desc
