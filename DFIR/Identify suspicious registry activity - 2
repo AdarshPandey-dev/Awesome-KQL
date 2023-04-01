@@ -1,0 +1,22 @@
+// KQL: Identify suspicious registry activity
+// Developed by: Adasrh Pandey
+// Description: Identify suspicious registry activity
+DeviceRegistryEvents
+| where TimeGenerated >= ago(1d)
+| where (
+    ActionType == "RegSetValue" or
+    ActionType == "RegCreateKey" or
+    ActionType == "RegOpenKey" or
+    ActionType == "RegDeleteKey" or
+    ActionType == "RegDeleteValue" or
+    ActionType == "RegRenameKey" or
+    ActionType == "RegQueryValue" or
+    ActionType == "RegQueryMultipleValues" or
+    ActionType == "RegQueryKey" or
+    ActionType == "RegLoadKey" or
+    ActionType == "RegSaveKey" or
+    ActionType == "RegUnloadKey" or
+    ActionType == "RegRestoreKey"
+)
+| summarize count() by DeviceName, InitiatingProcessAccountUpn, InitiatingProcessFolderPath, ActionType
+| order by count_ desc 
