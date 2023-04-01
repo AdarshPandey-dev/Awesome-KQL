@@ -1,0 +1,9 @@
+// KQL: Identify suspicious DNS activity:
+// Developed by: Adasrh Pandey
+// Description: This query will identify suspicious DNS activity 
+DnsEvents
+| where TimeGenerated >= ago(7d)
+| where * contains ".exe" 
+     or * contains ".dll"
+| summarize count() by Computer, Name, QueryType, SubType, ClientIP, IPAddresses
+| order by count_ desc
