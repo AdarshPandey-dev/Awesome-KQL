@@ -1,0 +1,9 @@
+// KQL: Identify suspicious registry activity
+// Developed by: Adasrh Pandey
+// Description: Identify suspicious registry activity
+DeviceRegistryEvents
+| where TimeGenerated >= ago(1d)
+| where RegistryKey contains "Software\\Microsoft\\Windows\\CurrentVersion\\Run" and RegistryValueName !contains "Default"
+| where RegistryValueName <> "com.squirrel.slack.slack" // whitelist the known processes
+| summarize count() by DeviceName, InitiatingProcessAccountName, RegistryValueName, RegistryKey
+| order by count_ desc
