@@ -1,0 +1,16 @@
+// KQL: Identify suspicious PowerShell script activity
+// Developed by: Adasrh Pandey
+// Description: Identify suspicious PowerShell script activity
+DeviceProcessEvents
+| where TimeGenerated >= ago(6h)
+| where ProcessCommandLine contains "powershell" and ProcessCommandLine contains ".ps1" and ProcessCommandLine !contains "-EncodedCommand"
+| where InitiatingProcessCommandLine <> "\"MicrosoftDependencyAgent.exe\""
+| where InitiatingProcessCommandLine <> "\"Microsoft.Management.Services.IntuneWindowsAgent.exe\""
+| where InitiatingProcessCommandLine !contains "\\Microsoft Intune Management Extension\\"
+| where InitiatingProcessCommandLine !contains "SenseIR.exe"
+| where ProcessCommandLine !contains "Intune_App_Deployment.ps1"
+| where InitiatingProcessCommandLine <> "\"Tentacle.exe\" run --instance=\"Tentacle\""
+| where ProcessCommandLine !contains "Mozilla_Uninstall.ps1"
+| where InitiatingProcessCommandLine !contains "LenovoSystemUpdateAddin"
+| summarize count() by DeviceName, AccountName, ProcessCommandLine, InitiatingProcessCommandLine
+| order by count_ desc
