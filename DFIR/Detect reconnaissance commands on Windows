@@ -1,0 +1,11 @@
+// KQL: Detect reconnaissance commands on Windows
+// Developed by: Adasrh Pandey
+// Description: 
+// False positive: Add Computer, Users Filters and exclude the known activities to narrow down the results
+SecurityEvent
+| where TimeGenerated >= ago(1d)
+| where EventID == 4688 
+// | where SubjectUserName in ("user1", "user2", "user3")
+// | where Computer in ("host1", "host2", "host3")
+| where NewProcessName has_any ("ping.exe", "nslookup.exe", "tracert.exe", "whoami.exe", "netstat.exe", "ipconfig.exe", "systeminfo.exe", "qwinsta.exe", "net.exe", "tasklist.exe", "driverquery.exe", "query.exe", "netsh.exe", "reg.exe", "fsutil.exe", "wevtutil.exe", "wbemtest.exe", "wmic.exe")
+| project TimeGenerated, Computer, SubjectUserName, SubjectDomainName, NewProcessId, NewProcessName, CommandLine
