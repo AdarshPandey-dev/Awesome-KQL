@@ -1,0 +1,8 @@
+// KQL: Look for signs of brute-force attacks
+// Developed by: Adasrh Pandey
+// Description: Look for signs of brute-force attacks
+SecurityEvent
+| where TimeGenerated >= ago(1d)
+| where EventID == 4625 and FailureReason == "%%2313"
+| summarize count() by Computer, AccountName, TargetUserName, IpAddress
+| order by count_ desc
