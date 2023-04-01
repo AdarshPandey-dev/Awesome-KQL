@@ -1,0 +1,8 @@
+// KQL: Look for lateral movement activity
+// Developed by: Adasrh Pandey
+// Description: This script will create a list of all suspicous lateral movement activities for last 1 day
+SecurityEvent
+| where TimeGenerated >= ago(1d)
+| where EventID == 4624 and LogonType == 3 and (LogonProcessName == "NtLmSsp " or LogonProcessName == "Ssp ")
+| summarize count() by Account, Computer, WorkstationName
+| order by count_ desc 
