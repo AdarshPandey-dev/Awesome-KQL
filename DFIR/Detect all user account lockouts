@@ -1,0 +1,11 @@
+// KQL: Detect all user account lockouts
+// Developed by: Adasrh Pandey
+// Description: detect account lockouts
+SecurityEvent
+| where TimeGenerated > ago(7d)
+| where EventID == 4740
+| where TargetUserName != "ANONYMOUS LOGON"
+| project TimeGenerated, TargetAccount, Computer, SubjectUserName, SubjectDomainName, TargetUserName, EventData
+| order by TimeGenerated desc  
+// | summarize count() by TargetAccount, Computer, SubjectUserName, SubjectDomainName, TargetUserName, EventData
+// | order by count_ desc  
