@@ -1,0 +1,7 @@
+// KQL: Retrieve all process information
+// Developed by: Adasrh Pandey
+// Description: Retrieve all process information
+DeviceProcessEvents
+| where TimeGenerated >= ago(1d)
+// | where DeviceName == ""
+| project TimeGenerated, DeviceName, ProcessCommandLine, InitiatingProcessCommandLine, ProcessId, InitiatingProcessId
