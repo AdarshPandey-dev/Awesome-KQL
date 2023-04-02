@@ -1,0 +1,6 @@
+// KQL: Get information about installed software
+// Developed by: Adasrh Pandey
+// Description: Get information about installed software
+DeviceTvmSoftwareInventory
+| where TimeGenerated >= ago(7d)
+| summarize count() by SoftwareName, SoftwareVersion, SoftwareVendor
