@@ -1,0 +1,9 @@
+// KQL: Detect malicious network activity
+// Developed by: Adasrh Pandey
+// Description: detect malicious network activity
+// FP-Handeling: Summarize all the events and select an actiontype for threathunting
+DeviceNetworkEvents
+| where TimeGenerated > ago(1d)
+// | summarize count() by ActionType
+| where ActionType == "FtpConnectionInspected"
+| project TimeGenerated, ActionType, DeviceName, LocalIP, RemoteIP, AdditionalFields
