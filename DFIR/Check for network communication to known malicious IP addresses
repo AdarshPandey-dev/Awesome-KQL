@@ -1,0 +1,9 @@
+// KQL: Check for network communication to known malicious IP addresses
+// Developed by: Adasrh Pandey
+// Description: Check for network communication to known malicious IP addresses
+let knownMaliciousIPs = dynamic(["192.168.1.1", "10.0.0.2", "8.8.8.8"]);
+DeviceNetworkEvents
+| where TimeGenerated >=ago(1d)
+| where RemoteIP in (knownMaliciousIPs)
+| project TimeGenerated, DeviceName, LocalIP, LocalPort, RemoteIP, RemotePort
+// summarize by DeviceName, LocalIP, LocalPort, RemoteIP, RemotePort
