@@ -1,0 +1,7 @@
+// KQL: Retrieve all PowerShell commands run on a specific computer
+// Developed by: Adasrh Pandey
+// Description: Retrieve all PowerShell commands run on a specific computer
+DeviceProcessEvents
+| where TimeGenerated >= ago(1d)
+| where DeviceName == "lptin-5gcqx93" and * == "powershell.exe"
+| project TimeGenerated, DeviceName, ProcessCommandLine
