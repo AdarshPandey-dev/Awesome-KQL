@@ -1,0 +1,12 @@
+// KQL: Detect lateral movement
+// Developed by: Adasrh Pandey
+// Description: Detect lateral movement
+SecurityEvent
+| where TimeGenerated > ago(1d)
+| where EventID in (4624, 4625, 4648)
+| where AccountType == "User"
+| where TargetUserName != "ANONYMOUS LOGON" and TargetDomainName <> "NT AUTHORITY" and TargetDomainName <> "Window Manager"
+| where isnotempty(TargetDomainName)
+| summarize count() by SubjectUserName, TargetDomainName
+| where count_ > 10 
+| order by count_ desc 
