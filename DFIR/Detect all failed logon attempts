@@ -1,0 +1,10 @@
+// KQL: Detect all failed logon attempts
+// Developed by: Adasrh Pandey
+// Description: Detect all failed logon attempts
+SecurityEvent
+| where TimeGenerated > ago(1d)
+| where EventID == 4625
+| where TargetUserName != "ANONYMOUS LOGON" and TargetAccount <> "\\"
+// | project TimeGenerated, TargetAccount, Computer, SubjectUserName, SubjectDomainName, TargetUserName, EventData
+// | order by TimeGenerated desc  
+| summarize count() by TargetAccount, Computer, SubjectUserName, SubjectDomainName, TargetUserName, EventData
