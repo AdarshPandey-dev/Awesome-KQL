@@ -1,0 +1,10 @@
+// KQL: Unusual account activity in Active Directory
+// Developed by: Adasrh Pandey
+// Description: This query detects unusual account activity in Active Directory
+SecurityEvent
+| where EventID == 4740 
+     or EventID == 4725 
+     or EventID == 4768 
+     or EventID == 4738 
+     or EventID == 4767
+| summarize count() by TargetUserName, EventID
