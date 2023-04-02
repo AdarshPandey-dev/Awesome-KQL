@@ -1,0 +1,8 @@
+// KQL: Find all user account creation events
+// Developed by: Adasrh Pandey
+// Description: Find all user account creation events
+SecurityEvent
+| where TimeGenerated >= ago(7d)
+| where EventID == 4720 and AccountType == "User"
+| project TimeGenerated, Computer, TargetUserName, DomainName, Account, EventData
+| order by TimeGenerated desc 
