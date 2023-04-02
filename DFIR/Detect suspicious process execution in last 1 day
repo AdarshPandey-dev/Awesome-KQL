@@ -1,0 +1,12 @@
+// KQL: Detect suspicious process execution
+// Developed by: Adasrh Pandey
+// Description: Detect suspicious process execution
+SecurityEvent
+| where TimeGenerated > ago(1d)
+| where EventID == 4688
+| where NewProcessName endswith ".exe" and NewProcessName != "svchost.exe" and NewProcessName != "csrss.exe" and NewProcessName != "lsass.exe" and NewProcessName !contains "CMCMessageProcessingService.exe"
+| where Process <> "conhost.exe" and Process <> "SenseCnCProxy.exe" and Process <> "SenseCncProxy.exe"
+| project TimeGenerated, AccountName, NewProcessName, CommandLine, ParentProcessName, Process
+| summarize count() by NewProcessName, ParentProcessName
+| where count_ <= 10
+| order by count_ desc 
