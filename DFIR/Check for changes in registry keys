@@ -1,0 +1,7 @@
+// KQL: Check for changes in registry keys
+// Developed by: Adasrh Pandey
+// Description: Check for changes in registry keys
+DeviceRegistryEvents
+| where TimeGenerated >= ago(1d)
+| where ActionType in ("SetValue", "DeleteValue", "CreateKey", "DeleteKey", "RenameKey", "SetInformationKey", "RestoreKey")
+| project TimeGenerated, DeviceName, ActionType, RegistryKey, RegistryValueName
