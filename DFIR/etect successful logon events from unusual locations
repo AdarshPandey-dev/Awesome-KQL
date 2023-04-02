@@ -1,0 +1,12 @@
+// KQL: Detect successful logon events from unusual locations
+// Developed by: Adasrh Pandey
+// Description: detect successful logon events from unusual locations
+SecurityEvent
+| where TimeGenerated > ago(1d)
+| where EventID == 4624
+| where AccountType == "User" and TargetUserName != "ANONYMOUS LOGON" and LogonType == 3
+| where not (IpAddress startswith "10." or IpAddress startswith "172.16." or IpAddress startswith "192.168.")
+| where IpAddress <> "-"
+| project TimeGenerated, Account, Computer, IpAddress, ProcessName, SubjectAccount, TargetAccount
+| summarize count() by Account, Computer, IpAddress, ProcessName, SubjectAccount, TargetAccount
+| order by count_ desc 
