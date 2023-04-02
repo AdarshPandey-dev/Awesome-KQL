@@ -1,0 +1,10 @@
+// KQL: Privilege escalation in Active Directory
+// Developed by: Adasrh Pandey
+// Description: This query detects attempts to escalate privileges in Active Directory:
+SecurityEvent
+| where TimeGenerated >= ago(90d)
+| where EventID == 4663 and SubjectLogonId != 0 and AccessMask == "0x100000"
+| join (SecurityEvent
+   | where EventID == 4732) on ObjectName
+| summarize count() by TargetUserName, SubjectUserName
+| where count_ > 5
