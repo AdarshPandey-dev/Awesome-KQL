@@ -1,0 +1,11 @@
+// KQL: Identify failed login attempts from users
+// Developed by: Adasrh Pandey
+// Description: This query looks for failed login attempts (Event ID 4625) from user accounts containing the specified compromised username.
+SecurityEvent
+| where TimeGenerated >= ago(30d) // filter events from the last 24 hours
+| where EventID == 4625 // filter failed login attempts
+| where AccountType == 'User' // filter user accounts
+// summarize count() by Account
+| where Account contains "UserName" // replace User with the compromised username
+| project TimeGenerated, Account, Computer, FailureReason, IpAddress, LogonProcessName, LogonTypeName, ProcessName
+| order by TimeGenerated desc 
