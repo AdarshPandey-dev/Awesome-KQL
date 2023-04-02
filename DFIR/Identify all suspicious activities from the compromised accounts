@@ -1,0 +1,11 @@
+// KQL: Identify all suspicious activities from the compromised accounts
+// Developed by: Adasrh Pandey
+// Description: Identify all suspicious activities from the compromised accounts
+SecurityEvent
+| where Account contains "User1" or 
+        Account contains "User2" or 
+        Account contains "User3"
+| where EventID <> 8002
+| where EventID <> 4634
+| project TimeGenerated, Account, Computer, EventID, Activity, CommandLine, FileHash, FilePath, Process, WorkstationName, EventData
+| sort by TimeGenerated, Account desc 
