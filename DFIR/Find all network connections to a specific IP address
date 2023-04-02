@@ -1,0 +1,6 @@
+// Find all network connections to a specific IP address
+let targetIP = "192.168.1.10";
+DeviceNetworkEvents
+| where TimeGenerated >= ago(1d)
+| where RemoteIP == targetIP
+| project TimeGenerated, DeviceName, LocalIP, LocalPort, RemoteIP, RemotePort
