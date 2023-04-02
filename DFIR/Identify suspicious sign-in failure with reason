@@ -1,0 +1,9 @@
+// KQL: Identify suspicious sign-in failure with reason
+// Developed by: Adasrh Pandey
+// Description: Identify suspicious sign-in failure with reason
+SigninLogs
+| where TimeGenarated >= ago(1d)
+| where isnotempty( ResultDescription)
+| summarize count() by UserPrincipalName, ResultDescription, Location, AppDisplayName
+| where count_ > 10
+| order by count_ desc 
