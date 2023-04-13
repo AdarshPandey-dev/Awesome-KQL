@@ -1,0 +1,19 @@
+// Identify the Defender tampering attempts 
+// Developed by: Adarsh Pandey
+DeviceEvents
+| where ActionType == @"TamperingAttempt"
+| extend ParsedFields=parse_json(AdditionalFields)
+| project Timestamp,
+          DeviceName,
+          DeviceId,
+          TamperingAction=tostring(ParsedFields.TamperingAction),
+          Status=tostring(ParsedFields.Status),
+          Target=tostring(ParsedFields.Target),
+          TamperingAttemptedValue=tostring(ParsedFields.TamperingAttemptedValue),
+          InitiatingProcessFileName, 
+          InitiatingProcessAccountName,
+          InitiatingProcessCommandLine,
+          ReportId
+| where Status != @"Blocked" 
+| where Status != @"Ignored"
+| order by Timestamp desc 
