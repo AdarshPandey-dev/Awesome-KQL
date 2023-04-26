@@ -1,0 +1,7 @@
+// Hunt for the Internet facing Servers/Endpoints in your organization
+DeviceInfo
+| where Timestamp > ago(30d)
+| where IsInternetFacing == 1
+| where ExposureLevel in ("High", "Medium")
+| where DeviceType == @"Server"
+| summarize by DeviceName, PublicIP, OSDistribution, OSBuild, OSVersion
