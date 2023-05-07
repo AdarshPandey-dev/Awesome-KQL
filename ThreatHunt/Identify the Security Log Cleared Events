@@ -1,0 +1,6 @@
+// Identify the Security Log Cleared Events
+// Developed By: Adarsh Pandey
+DeviceEvents
+| where TimeGenerated >= ago(180d)
+| where ActionType == "SecurityLogCleared"
+| project TimeGenerated, ActionType, DeviceName, InitiatingProcessAccountName
