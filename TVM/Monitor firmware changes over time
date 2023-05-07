@@ -1,0 +1,5 @@
+// Title: Monitor firmware changes over time
+// Developed By: Adarsh Pandey
+DeviceTvmHardwareFirmware
+| summarize latest(FirmwareVersion) by bin(Timestamp, 1d), DeviceName
+| render timechart
