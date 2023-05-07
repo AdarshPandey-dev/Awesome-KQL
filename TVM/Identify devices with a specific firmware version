@@ -1,0 +1,5 @@
+// Title: Identify devices with a specific firmware version
+// Developed By: Adarsh Pandey
+DeviceTvmHardwareFirmware
+| where FirmwareVersion == "VERSION_NUMBER"
+| project DeviceName, Manufacturer, Model, FirmwareVersion
