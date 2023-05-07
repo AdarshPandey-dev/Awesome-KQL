@@ -1,0 +1,6 @@
+// Title: Identify devices with a high number of failed assessments
+// Developed By: Adarsh Pandey
+DeviceTvmSecureConfigurationAssessment
+| where AssessmentStatus == "Failed"
+| summarize count() by DeviceName
+| sort by count_ desc
