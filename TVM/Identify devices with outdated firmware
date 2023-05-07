@@ -1,0 +1,6 @@
+// Title: Identify devices with outdated firmware
+// Developed By: Adarsh Pandey
+DeviceTvmHardwareFirmware
+| where IsLatest == false
+| summarize count() by DeviceName
+| sort by count_ desc
