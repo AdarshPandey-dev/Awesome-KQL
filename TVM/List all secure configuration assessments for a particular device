@@ -1,0 +1,5 @@
+// Title: List all secure configuration assessments for a particular device
+// Developed By: Adarsh Pandey
+// Replace "DEVICE_NAME" with the name of the device you are interested in.
+DeviceTvmSecureConfigurationAssessment
+| where DeviceName == "DEVICE_NAME"
