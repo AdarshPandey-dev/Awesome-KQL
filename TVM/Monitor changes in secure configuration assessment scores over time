@@ -1,0 +1,5 @@
+// Title: Monitor changes in secure configuration assessment scores over time
+// Developed By: Adarsh Pandey
+DeviceTvmSecureConfigurationAssessment
+| summarize avg(Score) by bin(Timestamp, 1d), DeviceName
+| render timechart
