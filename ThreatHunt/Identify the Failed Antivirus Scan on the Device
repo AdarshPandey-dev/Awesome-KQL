@@ -1,0 +1,12 @@
+// Identify the Failed Antivirus Scan on the Device
+// Developed by: Adarsh Pandey
+DeviceEvents
+| where TimeGenerated >= ago(180d)
+| where ActionType == "AntivirusScanFailed"
+| extend AdditionalFieldsParsed = parse_json(AdditionalFields)
+| extend Domain = tostring(AdditionalFieldsParsed.Domain),
+         ErrorCode = tostring(AdditionalFieldsParsed.ErrorCode),
+         ErrorDescription = tobool(AdditionalFieldsParsed.ErrorDescription),
+         ScanTypeIndex = tostring(AdditionalFieldsParsed.ScanTypeIndex),
+         User = tostring(AdditionalFields.User)
+| project TimeGenerated, ActionType, DeviceName, InitiatingProcessAccountName, InitiatingProcessCommandLine, InitiatingProcessFileName, InitiatingProcessFolderPath
