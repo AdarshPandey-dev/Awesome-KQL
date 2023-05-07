@@ -1,0 +1,5 @@
+// Title: Identify assessments with a low score for a specific device
+// Developed By: Adarsh Pandey
+DeviceTvmSecureConfigurationAssessment
+| where DeviceName == "DEVICE_NAME" and Score < 80
+| project AssessmentName, AssessmentStatus, Score, AdditionalData
