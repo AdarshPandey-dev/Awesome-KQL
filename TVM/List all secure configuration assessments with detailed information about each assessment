@@ -1,0 +1,6 @@
+// Title: List all secure configuration assessments with detailed information about each assessment
+// Developed By: Adarsh Pandey
+DeviceTvmSecureConfigurationAssessment
+| summarize avg(Score) by DeviceName
+| sort by avg_Score asc
+| take 10
