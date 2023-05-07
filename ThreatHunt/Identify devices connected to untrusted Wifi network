@@ -1,0 +1,11 @@
+// Identify devices connected to untrusted Wifi network
+// Develope by: Adarsh Pandey
+DeviceEvents
+| where TimeGenerated >= ago(180d) // Chnage the timestamp
+| where ActionType == "UntrustedWifiConnection"
+| extend AdditionalFieldsParsed = parse_json(AdditionalFields)
+| extend AuthenticationMethod = tostring(AdditionalFieldsParsed.AuthenticationMethod),
+         WifiConnectionMode = tostring(AdditionalFieldsParsed.WifiConnectionMode),
+         IsVulnerableToSpoofing = tobool(AdditionalFieldsParsed.IsVulnerableToSpoofing),
+         WifiNetworkName = tostring(AdditionalFieldsParsed.WifiNetworkName)
+| project TimeGenerated, DeviceName, WifiNetworkName, AuthenticationMethod, WifiConnectionMode, IsVulnerableToSpoofing
