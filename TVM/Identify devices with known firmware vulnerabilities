@@ -1,0 +1,5 @@
+// Title: Identify devices with known firmware vulnerabilities
+// Developed By: Adarsh Pandey
+DeviceTvmHardwareFirmware
+| where KnownVulnerabilitiesCount > 0
+| project DeviceName, Manufacturer, Model, FirmwareVersion, KnownVulnerabilitiesCount, KnownVulnerabilities
