@@ -1,0 +1,68 @@
+
+++++++++++++++++++++++++++++++
++                            +
++   Bl00dy Gang Ransomware   +
++                            +
+++++++++++++++++++++++++++++++
+
+Ref: https://www.cisa.gov/sites/default/files/2023-05/aa23-131a_malicious_actors_exploit_cve-2023-27350_in_papercut_mf_and_ng_1.pdf
+======================================================================
+// Bl00dy Gang Ransomware Email Addresses
+// Developed by: Adarsh Pandey
+let SuspiciousEmails = dynamic(["decrypt.support@privyonline.com", "fimaribahundqf@gmx.com", "main-office@data-highstream.com", "prepalkeinuc0u@gmx.com", "tpyrcne@onionmail.org"]);
+EmailEvents
+| where SenderFromAddress in (SuspiciousEmails)
+
+======================================================================
+// Bl00dy Gang Ransomware IP addresses
+// Developed by: Adarsh Pandey
+let SuspciousIPAddress = dynamic(["102.130.112.157", "172.106.112.46", "176.97.76.163", "192.160.102.164", "194.87.82.7", "195.123.246.20", "198.50.191.95", "206.197.244.75", "216.122.175.114", "46.4.20.30", "5.188.206.14", "5.8.18.233", "5.8.18.240", "80.94.95.103", "89.105.216.106", "92.118.36.199"
+]);
+DeviceNetworkEvents
+| where RemoteIP in (SuspciousIPAddress)
+
+======================================================================
+// Bl00dy Gang Ransomware Suspicious domains/URLs
+// Developed by: Adarsh Pandey
+let suspiciousDomains = dynamic(["http://192.184.35.216:443/4591187629.exe",
+    "anydeskupdate.com",
+    "anydeskupdates.com",
+    "ber6vjyb.com",
+    "netviewremote.com",
+    "study.abroad.ge",
+    "upd343.winserverupdates.com",
+    "upd488.windowservicecemter.com",
+    "upd488.windowservicecemter.com/download/update.dll",
+    "updateservicecenter.com",
+    "windowcsupdates.com",
+    "windowservicecemter.com",
+    "windowservicecentar.com",
+    "windowservicecenter.com",
+    "winserverupdates.com",
+    "winserverupdates.com"]);
+// Search for network traffic to suspicious domains
+DeviceNetworkEvents
+| where RemoteUrl in (suspiciousDomains)
+======================================================================
+// Bl00dy Gang Ransomware Suspicious commands
+// Developed by: Adarsh Pandey
+DeviceProcessEvents
+| where ProcessCommandLine contains "powershell.exe -nop -w hidden , Invoke-WebRequest '<url>/setup.msi' -OutFile 'setup.msi'"
+    or ProcessCommandLine contains "msiexec /i setup.msi /qn IntegratorLogin=<email_address> CompanyId=1"
+| extend ProcessCreationTimeUtc = todatetime(ProcessCreationTime)
+| project Timestamp, DeviceName, ProcessCreationTimeUtc, FileName, ProcessCommandLine
+
+======================================================================
+// Bl00dy Gang Ransomware Suspicious FilePaths
+// Developed by: Adarsh Pandey
+let suspiciousFilePaths = dynamic([
+    '/windows/system32/config/systemprofile/appdata/roaming/tor/',
+    '/windows/temp/socks.exe',
+    '/windows/temp/servers.txt',
+    'ld.txt',
+    'nethelper.exe',
+    'update.dll'
+]);
+DeviceEvents
+| where ActionType == "FileCreated"
+| where FolderPath in (suspiciousFilePaths)
