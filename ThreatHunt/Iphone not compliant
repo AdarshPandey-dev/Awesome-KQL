@@ -1,0 +1,13 @@
+// Iphone not compliant
+let lookBack = 24h;
+SigninLogs
+| where TimeGenerated >= ago(lookBack)
+| where UserAgent contains "iphone"
+| where strlen(AlternateSignInName) > 0
+| summarize by Identity, UserAgent
+| extend iphoneVersion = extract(@"(\d{1,2}_\d{1,2}(?:_\d{1,2})?)", 0, UserAgent)
+| extend iPhoneVersion = replace_string(iphoneVersion, "_", ".")
+| extend NeedToUpgrade = iif(parse_version('16.5') > parse_version(iPhoneVersion), "Yes", "No")
+| project-away iphoneVersion
+| project-reorder Identity, iPhoneVersion, UserAgent, NeedToUpgrade
+| where NeedToUpgrade == "Yes"
