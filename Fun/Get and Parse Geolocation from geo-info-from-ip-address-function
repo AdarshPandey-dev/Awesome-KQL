@@ -1,0 +1,5 @@
+// Get and Parse Geolocation from geo-info-from-ip-address-function 
+// Ref. - https://learn.microsoft.com/en-us/azure/data-explorer/kusto/query/geo-info-from-ip-address-function
+print GeoIP_info=geo_info_from_ip_address('20.53.203.50') 
+| extend country = tostring(parse_json(GeoIP_info).country), state = tostring(parse_json(GeoIP_info).state), city = tostring(parse_json(GeoIP_info).city), latitude = tostring(parse_json(GeoIP_info).latitude), longitude = tostring(parse_json(GeoIP_info).longitude)
+| project country, state, city, latitude, longitude
