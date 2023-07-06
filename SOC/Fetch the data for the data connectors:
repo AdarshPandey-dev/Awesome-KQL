@@ -1,0 +1,29 @@
+// Unhealthy connectors
+
+SentinelHealth 
+| where OperationName == 'Data fetch status change' 
+| summarize arg_max(TimeGenerated, *) by SentinelResourceId, SentinelResourceKind, SentinelResourceName 
+| where Status == "Failure" 
+
+
+// Active Connectors
+
+<Table name>
+| <filter query> // if more than one connector can ingest data to this table
+| summarize LastLogReceived = max(TimeGenerated)
+| project IsConnected = LastLogReceived > ago(<the duration period defined in the connector)
+| extend Key = <connector display name> , Group = 0)
+
+
+// An example of this union function with the active “Syslog” receiving Sysmon data and “Okta Single Sign-On” connectors would be :
+let emptyTable = datatable(TimeGenerated:datetime)[];
+union isfuzzy=true
+(emptyTable),
+(Syslog | where ProcessName == 'sysmon'
+| summarize LastLogReceived = max(TimeGenerated)
+| project IsConnected = LastLogReceived > ago(30d)
+| extend Key = "GUID for Sysmon For Linux", Group = 0) ,
+(Okta_CL
+| summarize LastLogReceived = max(TimeGenerated)
+| project IsConnected = LastLogReceived > ago(30d)
+| extend Key = "GUID for OktaSSO", Group = 0)
