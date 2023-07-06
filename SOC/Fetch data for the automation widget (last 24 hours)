@@ -1,0 +1,43 @@
+// Closed incidents
+SecurityIncident
+| where Status == 'Closed'
+| summarize arg_min(LastModifiedTime, ModifiedBy) by IncidentName
+| where ModifiedBy has 'Automation rule'
+| summarize Count = count()
+
+ 
+
+// Time saved
+SecurityIncident
+| where Status == 'Closed'
+| summarize arg_min(LastModifiedTime, ClosedTime, CreatedTime, ModifiedBy) by IncidentName
+| extend timeToClose = datetime_diff('Minute',ClosedTime, CreatedTime)
+| extend IsClosedByAutomation = iff(ModifiedBy has 'Automation rule','ClosedByAutomation', 'NotClosedByAutomation')
+| summarize MeanTimeToClose = percentiles(timeToClose, 50) by IsClosedByAutomation
+
+ 
+// Actions performed
+let IncidentsData = materialize(SecurityIncident
+| order by IncidentName asc, todatetime(TimeGenerated) asc
+| extend rowNumber = row_number(0, IncidentName != prev(IncidentName))
+| extend prevRowNumber = rowNumber - 1
+| project TimeGenerated, IncidentName,
+ModifiedBy, rowNumber, prevRowNumber, Severity, Status, Comments, Owner);
+IncidentsData
+| where ModifiedBy has 'Automation rule' or ModifiedBy startswith 'playbook'
+| join IncidentsData on $left.prevRowNumber == $right.rowNumber and
+$left.IncidentName == $right.IncidentName
+| project TimeGenerated, ModifiedBy,
+IncidentName,
+Severity, PrevSeverity = Severity1,
+Status, PrevStatus = Status1,
+Comments,  PrevComments = Comments1,
+Owner, PrevOwner = Owner1
+| extend isSeverityChanged = Severity != PrevSeverity
+| extend isStatusChanged = Status != PrevStatus
+| extend isCommentsChanged = tostring(Comments) != tostring(PrevComments)
+| extend isOwnerChanged = tostring(Owner.objectId) != tostring(PrevOwner.objectId)
+| summarize Severity = dcountif(IncidentName, isSeverityChanged),
+Status = dcountif(IncidentName, isStatusChanged),
+Comments = dcountif(IncidentName, isCommentsChanged),
+Owner = dcountif(IncidentName, isOwnerChanged)
