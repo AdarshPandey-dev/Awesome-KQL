@@ -1,0 +1,65 @@
+// Fetch data for the incidents widget
+ 
+
+// Incidents by status (last 24 hours)
+SecurityIncident
+| summarize arg_max(LastModifiedTime, Status) by IncidentName
+| summarize Count = count() by Status 
+
+ 
+// Incidents by severity (last 24 hours)
+SecurityIncident
+| summarize arg_max(LastModifiedTime,Severity) by IncidentName
+| summarize Count = count() by Severity
+
+ 
+// Incidents by closed classification (last 24 hours)
+SecurityIncident
+| where Status == 'Closed'
+| where isnotempty(Classification)
+| summarize arg_max(LastModifiedTime, Classification) by IncidentName
+| summarize Count = count() by Classification
+
+ 
+// Incidents status by creation time (last 24 hours)
+SecurityIncident
+| where CreatedTime > ago(1d)
+| summarize arg_max(LastModifiedTime, Status, CreatedTime) by IncidentName
+| summarize Count = count() by Status, bin(CreatedTime, 4h)
+| extend StatusCount = pack(Status, Count) 
+| summarize StatusCountArray = make_bag(StatusCount) by CreatedTime 
+| evaluate bag_unpack(StatusCountArray)
+| project Result = pack_all()
+
+ 
+
+// Mean time to acknowledge (last 48 hours)
+let MeanTimeToAck = SecurityIncident
+| where Status == 'Active'
+| summarize arg_min(LastModifiedTime, CreatedTime, TimeGenerated) by IncidentName
+| extend timeToAck = datetime_diff('Minute', LastModifiedTime, CreatedTime)
+| summarize MeanTime = percentiles(timeToAck, 50) by HalfQueryPeriodTime = bin_at(TimeGenerated, 24h, ago(48h)) 
+| order by HalfQueryPeriodTime asc;
+MeanTimeToAck
+| serialize HalfQueryPeriodTime
+| extend MeanTime = MeanTime/todouble(60)
+| extend Trend = (MeanTime - prev(MeanTime))/todouble(60)
+| order by HalfQueryPeriodTime desc
+| project MeanTime, Trend
+
+
+
+// Mean time to close (last 48 hours)
+let MeanTimeToClose = SecurityIncident
+| where Status == 'Closed'
+| summarize arg_min(LastModifiedTime, ClosedTime, CreatedTime, TimeGenerated) by IncidentName
+| extend timeToClose = datetime_diff('Minute', ClosedTime, CreatedTime)
+| summarize MeanTime = percentiles(timeToClose, 50)
+by HalfQueryPeriodTime = bin_at(TimeGenerated, 24h, ago(48h)) 
+| order by HalfQueryPeriodTime asc;
+MeanTimeToClose
+| serialize HalfQueryPeriodTime
+| extend MeanTime = MeanTime/todouble(60)
+| extend Trend = (MeanTime - prev(MeanTime))/todouble(60)
+| order by HalfQueryPeriodTime desc
+| project MeanTime, Trend
