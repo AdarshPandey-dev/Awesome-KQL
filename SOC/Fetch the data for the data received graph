@@ -1,0 +1,24 @@
+// Total volume of events
+
+let endTime = now(); 
+let startTime = ago(2d); 
+search * 
+| where TimeGenerated between (startTime..endTime) 
+| make-series RecordCount = count() default=0 on TimeGenerated from startTime to endTime step 4h 
+| mv-expand RecordCount to typeof(int), TimeGenerated to typeof(datetime) 
+| project Result = pack_all() 
+
+ 
+
+// Anomalies
+
+let endTime = now(); 
+let startTime = ago(1d); 
+let emptyTableAnoamliesVolume = datatable(TimeGenerated:datetime, RecordCount:int)[]; 
+emptyTableAnoamliesVolume 
+| union isfuzzy=true 
+                ( Anomalies 
+                | where TimeGenerated between (StartTimeAnomalies..EndTimeAnomalies) 
+                | make-series RecordCount = count() default=0 on TimeGenerated from StartTimeAnomalies to EndTimeAnomalies step 4h 
+                | mv-expand RecordCount to typeof(int), TimeGenerated to typeof(datetime)) 
+                | project Result = pack_all() 
