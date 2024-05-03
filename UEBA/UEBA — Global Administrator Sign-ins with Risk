@@ -1,0 +1,9 @@
+SigninLogs
+| where TimeGenerated > ago(1d)
+| join kind=inner (IdentityInfo | where TimeGenerated > ago(14d)) on $left.UserId == $right.AccountObjectId
+| where AssignedRoles contains "Global Administrator"
+| extend LocationDetails.city
+| extend LocationDetails.state
+| where RiskDetail != "none"
+| sort by TimeGenerated
+| project TimeGenerated, OperationName, Identity, AccountUPN, Location, City=LocationDetails.city, State=LocationDetails.state, ClientAppUsed, ConditionalAccessStatus, IsInteractive, RiskDetail, RiskLevel, EntityRiskScore, RiskState1, AssignedRoles, EmployeeId, JobTitle
