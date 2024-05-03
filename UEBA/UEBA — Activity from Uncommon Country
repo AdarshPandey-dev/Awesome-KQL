@@ -1,0 +1,14 @@
+// Query all countries from tenant users have connected in the past and see if a new country was used in today's sign-in logs
+let KnownLocation = 
+UnifiedSignInLogs
+| where TimeGenerated between (ago(30d)..ago(1d))
+| where ResultType == 0
+| distinct Location
+| where isnotempty(Location);
+UnifiedSignInLogs
+| where TimeGenerated > ago(1d)
+| where ResultType == 0
+| extend City = tostring(LocationDetails.city)
+| extend State = tostring(LocationDetails.city)
+| where Location !in (KnownLocation)
+| summarize by AppDisplayName, AppId, UserPrincipalName, UserId, IPAddress, NetworkLocationDetails, Location, City, State
