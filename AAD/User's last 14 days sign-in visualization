@@ -1,0 +1,12 @@
+// Query: User's last 14 days sign-in visualization
+// This query checks the user's 14 days sign-in details with location and summarize the counts with columnchart
+SigninLogs
+| where TimeGenerated >= startofday(ago(14d))
+| where Identity contains "adarsh" // replace the user name
+| extend city = tostring(LocationDetails.city)
+| extend countryOrRegion = tostring(LocationDetails.countryOrRegion)
+| extend state = tostring(LocationDetails.state)
+| sort by TimeGenerated desc
+| project TimeGenerated, Identity, IPAddress, city, countryOrRegion, state, Location
+| summarize count() by bin(TimeGenerated, 1h)
+| render columnchart 
