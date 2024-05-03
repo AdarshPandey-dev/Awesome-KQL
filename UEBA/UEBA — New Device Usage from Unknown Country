@@ -1,0 +1,9 @@
+BehaviorAnalytics // Microsoft Sentinel UEBA
+| where TimeGenerated > ago(1d)
+| where ActivityInsights.FirstTimeUserConnectedFromDevice == true
+| where ActivityInsights.CountryUncommonlyConnectedFromAmongPeers == true
+| extend ISP=DevicesInsights.ISP
+| where InvestigationPriority > 0
+| where DevicesInsights.ISP !contains "zscaler"
+| where isnotempty(ISP)
+| project TimeGenerated, UserName, UserPrincipalName, ActivityType, ActionType, SourceIPAddress, SourceIPLocation, SourceDevice, ISP
