@@ -1,5 +1,5 @@
-// Query: 1
-// This query checks the user's interactive logons with location details
+Query: Interactive Logon Analysis with User Location Details
+// This KQL query analyzes non-interactive logon activities of users, focusing on their location details. It retrieves data from the "AADNonInteractiveUserSignInLogs" table. The query extends the results with city, country/region, and state information parsed from the "LocationDetails" field. The results are sorted by the time the logon occurred and then projected to display relevant fields including time, user display name, user principal name, location details, and identity information.
 AADNonInteractiveUserSignInLogs
 | where UserPrincipalName == "adarsh@xyz.com" // replace the user name
 | extend city = tostring(parse_json(LocationDetails).city)
