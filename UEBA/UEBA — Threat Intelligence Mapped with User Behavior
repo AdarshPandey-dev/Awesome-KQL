@@ -1,0 +1,14 @@
+BehaviorAnalytics // Microsoft Sentinel UEBA
+| where TimeGenerated > ago(1d)
+| where InvestigationPriority > 0
+| extend ThreatIntelIndicatorDescription = DevicesInsights.ThreatIntelIndicatorDescription
+| where isnotempty(ThreatIntelIndicatorDescription)
+| extend DevicesInsights.ISP
+| extend ActivityInsights.App
+| extend ActivityInsights.ActionUncommonlyPerformedByUser
+| extend ActivityInsights.FirstTimeConnectionViaISPInTenant
+| extend ActivityInsights.FirstTimeUserUsedApp
+| extend ActivityInsights.UncommonHighVolumeOfActions
+| extend ActivityInsights.UnusualNumberOfDistinctUsersFailedSignInFromIPAddress
+| extend ActivityInsights.UnusualNumberOfFailedSignInOfThisUser
+| project TimeGenerated, UserName, UserPrincipalName, ActivityType, ActionType, SourceIPAddress, Location=SourceIPLocation, ISP=DevicesInsights.ISP, App=ActivityInsights.App, ActionUncommonlyPerformedByUser=ActivityInsights.ActionUncommonlyPerformedByUser, FirstTimeUserUsedApp=ActivityInsights.FirstTimeUserUsedApp, UncommonHighVolumeOfActions=ActivityInsights.UncommonHighVolumeOfActions, UnusualNumberOfDistinctUsersFailedSignInFromIPAddress=ActivityInsights.UnusualNumberOfDistinctUsersFailedSignInFromIPAddress, UnusualNumberOfFailedSignInOfThisUser=ActivityInsights.UnusualNumberOfFailedSignInOfThisUser
