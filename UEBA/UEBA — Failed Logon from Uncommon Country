@@ -1,0 +1,6 @@
+BehaviorAnalytics
+| where ActivityType == "FailedLogOn"
+| where ActivityInsights.CountryUncommonlyConnectedFromAmongPeers == true
+| where ActivityInsights.FirstTimeUserConnectedFromCountry == true
+| extend DevicesInsights.UserAgentFamily
+| project TimeGenerated, UserName, UserPrincipalName, ActivityType, ActionType, SourceIPAddress, SourceIPLocation, SourceDevice, UserAgentFamily=DevicesInsights.UserAgentFamily, InvestigationPriority
