@@ -1,0 +1,13 @@
+// KQL: Check for Network Communication to Known Malicious IP Addresses
+// Developed by: Adarsh Pandey
+// Description: This query identifies network communications to known malicious IP addresses.
+// It filters events within the last 24 hours and checks if the remote IP matches any IP in the list of known malicious IPs.
+// The query returns details such as the time of the communication, device name, local and remote IP addresses, 
+// and the respective ports involved.
+
+let knownMaliciousIPs = dynamic(["192.168.1.1", "10.0.0.2", "8.8.8.8"]); // Define a list of known malicious IP addresses
+DeviceNetworkEvents
+| where TimeGenerated >= ago(1d) // Filter for network events in the last 24 hours
+| where RemoteIP in (knownMaliciousIPs) // Check if the remote IP matches any of the known malicious IPs
+| project TimeGenerated, DeviceName, LocalIP, LocalPort, RemoteIP, RemotePort // Project relevant network details
+// summarize by DeviceName, LocalIP, LocalPort, RemoteIP, RemotePort // Optionally, summarize the results by the key fields
