@@ -1,0 +1,13 @@
+// Query: User Sign-in Details with Location
+// This query retrieves the sign-in details for a specific user and includes information about their location. 
+// It filters sign-ins by the user's identity, extracts location data (city, country/region, state) from the 
+// LocationDetails field, and sorts the results by the time the sign-in occurred.
+
+// Replace "adarsh" with the relevant user's identity (e.g., partial username or UPN) to filter sign-ins.
+SigninLogs
+| where Identity contains "adarsh" // Filter for sign-ins related to the specific user (replace with appropriate identity)
+| extend city = tostring(parse_json(LocationDetails).city) // Extract city from LocationDetails JSON field
+| extend countryOrRegion = tostring(parse_json(LocationDetails).countryOrRegion) // Extract country/region from LocationDetails
+| extend state = tostring(parse_json(LocationDetails).state) // Extract state from LocationDetails
+| sort by TimeGenerated desc // Sort sign-in records by time, most recent first
+| project TimeGenerated, Identity, IPAddress, city, countryOrRegion, state, Location // Project relevant fields for output
