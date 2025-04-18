@@ -1,0 +1,14 @@
+// Query: User's Last 14 Days Sign-in Visualization
+// This query retrieves the sign-in details for a specific user over the last 14 days, including location data.
+// It then summarizes the sign-ins by hour and visualizes the counts using a column chart.
+
+SigninLogs
+| where TimeGenerated >= startofday(ago(14d)) // Filter for sign-ins within the last 14 days
+| where Identity contains "adarsh" // Replace with the specific user's identity (e.g., partial username or UPN)
+| extend city = tostring(parse_json(LocationDetails).city) // Extract city from the LocationDetails JSON field
+| extend countryOrRegion = tostring(parse_json(LocationDetails).countryOrRegion) // Extract country/region from LocationDetails
+| extend state = tostring(parse_json(LocationDetails).state) // Extract state from the LocationDetails
+| sort by TimeGenerated desc // Sort sign-ins by the most recent
+| project TimeGenerated, Identity, IPAddress, city, countryOrRegion, state, Location // Project relevant fields
+| summarize count() by bin(TimeGenerated, 1h) // Summarize the number of sign-ins by hour
+| render columnchart // Visualize the summarized data as a column chart
