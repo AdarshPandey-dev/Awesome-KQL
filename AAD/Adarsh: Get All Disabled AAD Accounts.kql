@@ -1,0 +1,9 @@
+// This KQL query is designed to find and list disabled Azure Active Directory (AAD) accounts. 
+// It retrieves account details from the "IdentityInfo" table, filtering for accounts that are disabled 
+// based on the "IsAccountEnabled" field. The query then summarizes the results by key account information 
+// including display name, email address, department, job title, country, and account status.
+
+// Filtering for disabled accounts (IsAccountEnabled == "0" indicates disabled accounts).
+IdentityInfo 
+| where IsAccountEnabled == "0" // Filter for disabled accounts
+| summarize by AccountDisplayName, EmailAddress, Department, JobTitle, Country, IsAccountEnabled // Summarize and group by relevant fields
