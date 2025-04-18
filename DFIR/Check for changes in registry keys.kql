@@ -1,0 +1,10 @@
+// KQL: Check for Changes in Registry Keys
+// Developed by: Adarsh Pandey
+// Description: This query checks for changes in registry keys on devices by filtering events based on 
+// specific actions (e.g., creating, deleting, or modifying keys/values) within the last day.
+// The results include details on the action type, registry key, and value name that were modified.
+
+DeviceRegistryEvents
+| where TimeGenerated >= ago(1d) // Filter events from the last 24 hours
+| where ActionType in ("SetValue", "DeleteValue", "CreateKey", "DeleteKey", "RenameKey", "SetInformationKey", "RestoreKey") // Filter by specific registry actions
+| project TimeGenerated, DeviceName, ActionType, RegistryKey, RegistryValueName // Project the relevant fields for display
