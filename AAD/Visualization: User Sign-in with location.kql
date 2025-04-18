@@ -1,0 +1,14 @@
+// Query: Visualization of User Sign-ins with Location Details
+// This query retrieves the sign-in details for a specific user, including location information 
+// (city, country/region, state), and then summarizes the count of sign-ins by hour.
+// The data is visualized in a column chart for easy analysis.
+
+SigninLogs
+| where Identity contains "adarsh" // Filter for a specific user (replace with the desired username or identity)
+| extend city = tostring(parse_json(LocationDetails).city) // Extract city from the LocationDetails JSON field
+| extend countryOrRegion = tostring(parse_json(LocationDetails).countryOrRegion) // Extract country/region from LocationDetails
+| extend state = tostring(parse_json(LocationDetails).state) // Extract state from LocationDetails
+| sort by TimeGenerated desc // Sort the results by the most recent sign-ins first
+| project TimeGenerated, Identity, IPAddress, city, countryOrRegion, state, Location // Project relevant fields for output
+| summarize count() by bin(TimeGenerated, 1h) // Summarize the count of sign-ins by hourly bins
+| render columnchart // Visualize the summarized data as a column chart for easy analysis
